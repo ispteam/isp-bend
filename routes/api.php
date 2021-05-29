@@ -21,7 +21,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-/** NOTEl MIDDLEWARE FOR AUTH SHOULD BE ADDED INSIDE THE CONTROLLER*/
+/** NOTE MIDDLEWARE FOR AUTH SHOULD BE ADDED INSIDE THE CONTROLLER*/
 Route::prefix('admin')->group(function () {
     Route::resource('/admin-operations', AdminController::class);
 });
@@ -36,7 +36,7 @@ Route::prefix('admin')->group(function () {
 
 
 
-/** NOTEl MIDDLEWARE FOR AUTH SHOULD BE ADDED INSIDE THE CONTROLLER */
+/** NOTE MIDDLEWARE FOR AUTH SHOULD BE ADDED INSIDE THE CONTROLLER */
 Route::prefix('moderator')->group(function () {
     Route::resource('/moderator-operations', ModeratorController::class);
 });
@@ -50,7 +50,7 @@ Route::prefix('moderator')->group(function () {
 
 
 
-/** NOTEl MIDDLEWARE FOR AUTH SHOULD BE ADDED INSIDE THE CONTROLLER*/
+/** NOTE MIDDLEWARE FOR AUTH SHOULD BE ADDED INSIDE THE CONTROLLER*/
 Route::prefix('supplier')->group(function () {
     Route::resource('/supplier-operations', SupplierController::class);
 });
@@ -63,7 +63,7 @@ Route::prefix('supplier')->group(function () {
  */
 
 
-/** NOTEl MIDDLEWARE FOR AUTH SHOULD BE ADDED IN SOME ROUTE INSIDE THE CONTROLLER */
+/** NOTE MIDDLEWARE FOR AUTH SHOULD BE ADDED IN SOME ROUTE INSIDE THE CONTROLLER */
 Route::prefix('client')->group(function () {
     Route::resource('/client-operations', ClientController::class);
 });
