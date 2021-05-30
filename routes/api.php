@@ -8,6 +8,7 @@ use App\Http\Controllers\Moderator\ModeratorController;
 use App\Http\Controllers\RRequest\RequestController;
 use App\Http\Controllers\Shipper\ShipperController;
 use App\Http\Controllers\Supplier\SupplierController;
+use App\Http\Controllers\TestController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -23,7 +24,7 @@ use Illuminate\Support\Facades\Route;
 
 /** NOTE MIDDLEWARE FOR AUTH SHOULD BE ADDED INSIDE THE CONTROLLER*/
 Route::prefix('admin')->group(function () {
-    Route::resource('/admin-operations', AdminController::class);
+    Route::apiResource('/admin-operations', AdminController::class);
 });
 
 
@@ -38,7 +39,7 @@ Route::prefix('admin')->group(function () {
 
 /** NOTE MIDDLEWARE FOR AUTH SHOULD BE ADDED INSIDE THE CONTROLLER */
 Route::prefix('moderator')->group(function () {
-    Route::resource('/moderator-operations', ModeratorController::class);
+    Route::apiResource('/moderator-operations', ModeratorController::class);
 });
 
 /**
@@ -52,7 +53,7 @@ Route::prefix('moderator')->group(function () {
 
 /** NOTE MIDDLEWARE FOR AUTH SHOULD BE ADDED INSIDE THE CONTROLLER*/
 Route::prefix('supplier')->group(function () {
-    Route::resource('/supplier-operations', SupplierController::class);
+    Route::apiResource('/supplier-operations', SupplierController::class);
 });
 
  /**
@@ -65,7 +66,7 @@ Route::prefix('supplier')->group(function () {
 
 /** NOTE MIDDLEWARE FOR AUTH SHOULD BE ADDED IN SOME ROUTE INSIDE THE CONTROLLER */
 Route::prefix('client')->group(function () {
-    Route::resource('/client-operations', ClientController::class);
+    Route::apiResource('/client-operations', ClientController::class);
 });
 
   /**
@@ -77,7 +78,7 @@ Route::prefix('client')->group(function () {
 
 
 Route::prefix('shipper')->group(function () {
-    Route::resource('/shipper-operations', ShipperController::class);
+    Route::apiResource('/shipper-operations', ShipperController::class);
 });
 
   /**
@@ -88,7 +89,7 @@ Route::prefix('shipper')->group(function () {
  */
 
 Route::prefix('brand')->group(function () {
-    Route::resource('/brand-operations', BrandController::class);
+    Route::apiResource('/brand-operations', BrandController::class);
 });
 
 
@@ -100,7 +101,7 @@ Route::prefix('brand')->group(function () {
  */
 
 Route::prefix('model')->group(function () {
-    Route::resource('/model-operations', MModelController::class);
+    Route::apiResource('/model-operations', MModelController::class);
 });
  
 
@@ -112,7 +113,7 @@ Route::prefix('model')->group(function () {
  */
 
 Route::prefix('request')->group(function () {
-    Route::resource('/request-operations', RequestController::class);
+    Route::apiResource('/request-operations', RequestController::class);
 });
 
   /**

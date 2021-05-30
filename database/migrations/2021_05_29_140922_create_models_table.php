@@ -22,6 +22,7 @@ class CreateModelsTable extends Migration
             $table->string("quantity");
             $table->timestamps();
             $table->foreign("brandId")->references("brandId")->on("brands")->onDelete("CASCADE")->onUpdate("CASCADE");
+            $table->foreign("supplierId")->references("supplierId")->on("suppliers")->onDelete("CASCADE")->onUpdate("CASCADE");
         });
     }
 
