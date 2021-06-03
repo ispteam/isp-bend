@@ -21,6 +21,10 @@ Route::get('headerTest', function () {
     return view('layouts.header_nav');
 });
 
+Route::get('homeTest', function () {
+    return view('homee');
+});
+
 Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
