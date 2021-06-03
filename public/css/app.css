@@ -10083,10 +10083,10 @@ nav .icon-burger .line {
 	border-radius: 3px;
 	transition: all .3s ease-in-out;
 }
-@media screen and (max-width: 768px) {
+@media screen and (max-width: 1100px) {
 	nav .logo {
 		float: none;
-		width: auto;
+		width: 100%;
 		justify-content: center;
 	}
 	nav .links {
