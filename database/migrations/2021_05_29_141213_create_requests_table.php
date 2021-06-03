@@ -14,7 +14,20 @@ class CreateRequestsTable extends Migration
     public function up()
     {
         Schema::create('requests', function (Blueprint $table) {
-            $table->id();
+            $table->bigIncrements("requestId");
+            $table->text("description");
+            $table->string("requestStatus")->default("0");  // It is a way to ensure the reqest status whether processed or not example 0: Pending, 1:in progress, 2:completed, 3: canceled.
+            $table->json("address");
+            $table->string("field");
+            $table->string("quantity");
+            $table->json("amounts")->nullable();
+            $table->string("finalAmount");
+            $table->unsignedBigInteger("clientId");
+            $table->unsignedBigInteger("modelId");
+            $table->unsignedBigInteger("supplierId")->nullable();
+            $table->foreign("clientId")->references("clientId")->on("clients")->onDelete("CASCADE")->onUpdate("CASCADE");
+            $table->foreign("modelId")->references("modelId")->on("models")->onDelete("CASCADE")->onUpdate("CASCADE");
+            $table->foreign("supplierId")->references("supplierId")->on("suppliers")->onDelete("CASCADE")->onUpdate("CASCADE");
             $table->timestamps();
         });
     }

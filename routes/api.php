@@ -8,7 +8,6 @@ use App\Http\Controllers\Moderator\ModeratorController;
 use App\Http\Controllers\RRequest\RequestController;
 use App\Http\Controllers\Shipper\ShipperController;
 use App\Http\Controllers\Supplier\SupplierController;
-use App\Http\Controllers\TestController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -114,6 +113,14 @@ Route::prefix('model')->group(function () {
 
 Route::prefix('request')->group(function () {
     Route::apiResource('/request-operations', RequestController::class);
+    //To update the amount of each supplier to be displayed to the client er to choose from
+    Route::put("/update-amounts", [RequestController::class, 'updateAmounts']);
+
+    //To show full data of each supplier with his amount offer 
+    Route::get("/show-amounts", [RequestController::class, 'showFullAmounts']);
+
+    //To update the request with the final amount + supplier id which has the best offer
+    Route::post("/select-best-price", [RequestController::class, 'selectBestPrice']);
 });
 
   /**

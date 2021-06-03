@@ -15,7 +15,7 @@ class CreateModelsTable extends Migration
     {
         Schema::create('models', function (Blueprint $table) {
             $table->bigIncrements("modelId");
-            $table->string("partNo")->unique(); //Why part number is unique? To avoid any clash between the parts.
+            $table->string("partNo");
             $table->text("partDescription");
             $table->unsignedBigInteger("brandId");
             $table->unsignedBigInteger("supplierId");

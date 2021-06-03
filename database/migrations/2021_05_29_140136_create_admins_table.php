@@ -16,9 +16,11 @@ class CreateAdminsTable extends Migration
         Schema::create('admins', function (Blueprint $table) {
             $table->bigIncrements("adminId");
             $table->string("password");
-            $table->string("name")->nullable(); //Because user might register his name in arabic not in english. That's why it's nullable (can be null)
-            $table->string("nameInArabic")->nullable();  //Because user might register his name in english not in arabic. That's why it's nullable (can be null)
-            $table->string("email")->unique();
+            $table->string("name");
+            $table->string("nameInArabic");
+            $table->string("email");
+            $table->string("enterId")->unique();
+            $table->string("phone");
             $table->timestamps();
         });
     }

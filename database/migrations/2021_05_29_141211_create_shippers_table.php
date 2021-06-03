@@ -15,8 +15,8 @@ class CreateShippersTable extends Migration
     {
         Schema::create('shippers', function (Blueprint $table) {
             $table->bigIncrements("companyId");
-            $table->string("companyName")->nullable();  //Because user might register his name in arabic not in english. That's why it's nullable (can be null)
-            $table->string("companyNameArabic")->nullable();  //Because user might register his name in arabic not in english. That's why it's nullable (can be null)
+            $table->string("companyName");
+            $table->string("companyNameArabic");
             $table->timestamps();
         });
     }

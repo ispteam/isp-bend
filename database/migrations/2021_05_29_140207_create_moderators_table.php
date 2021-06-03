@@ -16,9 +16,10 @@ class CreateModeratorsTable extends Migration
         Schema::create('moderators', function (Blueprint $table) {
             $table->bigIncrements("moderatorId");
             $table->string("password");
-            $table->string("name")->nullable(); //Because user might register his name in arabic not in english. That's why it's nullable (can be null)
-            $table->string("nameInArabic")->nullable();  //Because user might register his name in english not in arabic. That's why it's nullable (can be null)
-            $table->string("email")->unique();
+            $table->string("name");
+            $table->string("nameInArabic");
+            $table->string("email");
+            $table->string("phone");
             $table->timestamps();
         });
     }

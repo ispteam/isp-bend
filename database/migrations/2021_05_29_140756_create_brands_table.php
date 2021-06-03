@@ -16,6 +16,7 @@ class CreateBrandsTable extends Migration
         Schema::create('brands', function (Blueprint $table) {
             $table->bigIncrements("brandId");
             $table->string("brandName")->unique(); //Why brand name is unique? because there are not multiple brands should be in the same table.
+            $table->string("brandNameInArabic")->unique();
             $table->timestamps();
         });
     }

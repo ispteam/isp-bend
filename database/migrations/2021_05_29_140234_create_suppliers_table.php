@@ -16,12 +16,13 @@ class CreateSuppliersTable extends Migration
         Schema::create('suppliers', function (Blueprint $table) {
             $table->bigIncrements("supplierId");
             $table->string("password");
-            $table->string("name")->nullable(); //Because user might register his name in arabic not in english. That's why it's nullable (can be null)
-            $table->string("nameInArabic")->nullable();  //Because user might register his name in english not in arabic. That's why it's nullable (can be null)
-            $table->string("companyInEnglish")->nullable(); //Because user might register his company in arabic not in english. That's why it's nullable (can be null)
-            $table->string("email")->unique();
-            $table->string("verified"); // It is a way to ensure the supplier's account whether verified or not example 0: Not verified, 1:Verified, 2:Suspended
-            $table->string("phone")->unique();
+            $table->string("name");
+            $table->string("nameInArabic");
+            $table->string("companyInEnglish");
+            $table->string("companyInArabic");
+            $table->string("email");
+            $table->string("verified")->default("0"); // It is a way to ensure the supplier's account whether verified or not example 0: Not verified, 1:Verified, 2:Suspended
+            $table->string("phone");
             $table->timestamps();
         });
     }

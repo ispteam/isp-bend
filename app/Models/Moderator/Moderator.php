@@ -8,4 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 class Moderator extends Model
 {
     use HasFactory;
+    
+    protected $table = "moderators";
+    protected $primarykey = "moderatorId";
+    protected $fillable = ["name","nameInArabic","email", "password"];
+
 }

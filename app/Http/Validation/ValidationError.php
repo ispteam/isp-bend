@@ -9,5 +9,10 @@ class ValidationError{
         $validator= Validator::make($request->all(), $rules);
         return $validator;
     }
+
+    public static function sanitizeAddress($address){
+        $sanitizedAddress = filter_var_array($address, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_HIGH);
+        return $sanitizedAddress;
+    }
 }
 
