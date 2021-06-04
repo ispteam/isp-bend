@@ -18,17 +18,12 @@ Route::get('/', function () {
 });
 
 Route::get('/home1', function () {
-    return view('home');
+    return view('homee');
 });
 
 Route::get('/headerTest', function () {
     return view('layouts.header_nav');
 });
-
-Route::get('/list', function () {
-    return view('requests.list');
-});
-
 
 
 
