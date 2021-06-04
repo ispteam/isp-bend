@@ -25,8 +25,8 @@ Route::get('/headerTest', function () {
     return view('layouts.header_nav');
 });
 
-Route::get('/list', function () {
-    return view('requests.list');
+Route::get('/list2', function () {
+    return view('requests.list2');
 });
 
 Auth::routes();
