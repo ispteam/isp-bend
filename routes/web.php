@@ -17,6 +17,10 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::get('/home1', function () {
+    return view('home');
+});
+
 Route::get('/headerTest', function () {
     return view('layouts.header_nav');
 });
