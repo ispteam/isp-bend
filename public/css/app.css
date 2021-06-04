@@ -10015,7 +10015,7 @@ nav {
 	font-family: "Arial Narrow", sans-serif;
 	padding: 0 5%;
 	height: 100px;
-	background-color: rgb(92, 128, 114, 0.8);
+	background-color: #5c8072cc;
     box-shadow: 0px 2px 8px 0px #333;
 }
 nav .logo {
@@ -10126,3 +10126,201 @@ nav .icon-burger .line {
 	}
 
 }
+
+/*--------------------------------------------------------------
+# Home page
+--------------------------------------------------------------*/
+
+/*--------------
+# How to use for client
+--------------*/
+
+#CHowUse {
+    position: relative;
+    display: flex;
+    padding-top: 15%;
+    justify-content: center;
+    align-items: center;
+    opacity: 0.8;
+    color: #384e45;
+    text-shadow: 2px 2px 0 rgba(100, 100, 100, 0.877);
+    text-transform: uppercase;
+    font-size: 70px;
+    padding-bottom: 30px;
+  }
+
+
+#homeContainerBox{
+    padding-bottom: 2%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 50vh;
+
+}
+
+.homeContainerBox{
+    width: 1200px;
+    height: auto;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    grid-gap: 10px;
+    padding: 10px 10px 0px 10px;
+    box-sizing: border-box;
+}
+
+.homeContainerBox .CHowUseBox {
+    position: relative;
+    background: #fff;
+    padding: 10px 40px 40px;
+    text-align: center;
+    overflow: hidden;
+    border-radius: 20px;
+    background: linear-gradient(45deg,#f0fff0, #ebffeb);
+}
+
+.homeContainerBox .CHowUseBox h2{
+    position: relative;
+    margin: 0;
+    padding: 0;
+    font-size: 90px;
+    color: #030805;
+    z-index: 1;
+    opacity: 0.4;
+}
+
+.homeContainerBox .CHowUseBox h3{
+    margin: 0, 0, 10px, 0;
+    padding: 0;
+    color: #0a1f14;
+    font-size: 24px;
+    text-transform: uppercase;
+}
+
+.homeContainerBox .CHowUseBox p{
+    margin: 0;
+    padding: 0;
+    color: #1a4c33;
+    font-size: 16px;
+}
+@media screen and (max-width: 1100px) {
+    #CHowUse{
+        padding-top: 40%;
+        font-size: 50px;
+
+    }
+}
+
+#sendNewRequest{
+    padding-bottom: 10%;
+    display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 40%;
+}
+
+.senNewRequest{
+    background: linear-gradient(45deg,#f0fff0, #ebffeb);
+    color: #0a1f14;
+    padding: 14px 25px;
+    text-align: center;
+    text-decoration: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 10px;
+    box-shadow: 0px 5px 10px #81958b;
+}
+
+.senNewRequest:hover{
+    box-shadow: 0px 15px 25px -5px rgba(darken(dodgerblue, 40%));
+    transform: scale(1.03);
+    background: linear-gradient(45deg,#b8dbc9, #c2e0d1);
+    color:var(--gray-dark);
+    text-decoration: none;
+}
+/*--------------
+-----------------------------------------------------------------------------------------------
+--------------*/
+
+/*--------------
+# How to use for suppliers
+--------------*/
+.SHowUseBox{
+background-color: #40584f83;
+padding-top: 5%;
+padding-bottom: 5%;
+}
+
+
+.SHowUseBox h1 {
+    font-size: 70px;
+    position: relative;
+    display: flex;
+    padding-top: 50px;
+    justify-content: center;
+    text-align: center;
+    opacity: 0.8;
+    color: #f5faf7;
+    text-shadow: 2px 2px 0 #646464e0;
+    text-transform: uppercase;
+}
+@media screen and (max-width: 1100px) {
+    .SHowUseBox h1{
+        font-size: 50px;
+
+    }
+}
+
+.SHowUseBox #SHowUseBox{
+    padding-left: 15%;
+    padding-right: 15%;
+    padding-top: 30px;
+    padding-bottom: 10px;
+}
+
+.SHowUseBox #SHowUseBox h2{
+    margin: 0;
+    padding: 0;
+    color: #cbebdd;
+    font-size: 40px;
+    text-shadow: 1px 1px 0 rgba(228, 228, 228, 0.514);
+}
+
+.SHowUseBox #SHowUseBox p{
+    margin: 0;
+    padding: 20px;
+    color: #e0f0e8;
+    font-size: 16px;
+}
+
+
+.SupplierAccounButton:link, .SupplierAccounButton:visited {
+    background: linear-gradient(45deg,#b8dbc9, #c2e0d1);
+    color:var(--gray-dark);
+    padding: 14px 25px;
+    text-align: center;
+    text-decoration: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 10px;
+    box-shadow: 0px 5px 10px #81958b;
+  }
+
+.SupplierAccounButton:hover{
+    box-shadow: 0px 15px 25px -5px rgba(darken(dodgerblue, 40%));
+    transform: scale(1.03);
+    background: linear-gradient(45deg,#f0fff0, #ebffeb);
+    color: black;
+}
+/*--------------
+-----------------------------------------------------------------------------------------------
+--------------*/
+
+
+
+
+
+
