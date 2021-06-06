@@ -17,7 +17,27 @@ class BrandController extends Controller
      */
     public function index()
     {
-        
+        try{
+            $brands= Brand::with("models")->get();
+            if(count($brands) < 1){
+                $error= new Error(null);
+                $error->message = "No brand is found";
+                $error->messageInArabic = "لم يتم ايجاد علامة تجارية";
+                $error->statusCode= 404;
+                throw $error;
+            }
+
+            return response()->json([
+                "clients" => $brands,
+                "statusCode" => 200
+            ]);
+        }catch(Error $err){
+            return response()->json([
+                "message" => $err->errorMessage,
+                "messageInArabic" => $err->messageInArabic,
+                "statusCode" => $err->statusCode
+            ], $err->statusCode);
+        }
     }
     /**
      * Store a newly created resource in storage.
@@ -43,8 +63,8 @@ class BrandController extends Controller
              */
         
             $rules = [
-                "brandNameInArabic" => "required|string|min:2|max:30|regex:/^[؀-ۿ\s]+$/",
-                "brandName" => "required|string|min:2|max:30|regex:/^[A-Za-z\s]+$/",
+                "brandNameInArabic" => "required|string|min:2|max:30|unique:brands,brandNameInArabic|regex:/^[؀-ۿ\s]+$/",
+                "brandName" => "required|string|min:2|max:30|unique:brands,brandName|regex:/^[A-Za-z\s]+$/",
             ];
             
             /**
@@ -61,6 +81,7 @@ class BrandController extends Controller
             if($validator->fails()){
                 $error = new Error(null);
                 $error->errorMessage = $validator->errors();
+                $error->messageInArabic= "";
                 $error->statusCode = 422;
                 throw $error;
             }
@@ -70,7 +91,7 @@ class BrandController extends Controller
              * We hash the password to encrypt it from stealing.
              * We convert the address field into json because the column address type is in json format
              */
-            $brand = brand::create([
+            $brand = Brand::create([
                 "brandNameInArabic" => $request->input("brandNameInArabic"),
                 "brandName" => $request->input("brandName"),
                 ]);
@@ -113,9 +134,48 @@ class BrandController extends Controller
         
     }
 
-    public function show(Brand $brand)
+    public function show(Request $request)
     {
-     //   
+        try{
+  
+            /**
+             * Here we check the coming brand id wheter a number or not.
+             * If a number we will store it in the brandId variable.
+             * If not a number we will assign the variable to zero
+             */
+              $brandId = intval($request->input("brandId")) ? $request->input("brandId") : 0;
+              /**
+               * System will call the brand with the coming id
+               */
+              
+              $brand = Brand::with("models")->where("brandId", $brandId)->first();
+  
+              /**
+               * System checks the brand if exists or not.
+               * If no brand is found in the brand table, system will return an error
+               */
+              if($brand == null){
+                  $error = new Error(null);
+                  $error->errorMessage = "There is no brand with this id";
+                  $error->messageInArabic = "لا يوجد علامة تجارية مسجلة";
+                  $error->statusCode = 404;
+                  throw $error;
+              }
+  
+              return response()->json([
+                  "brand" => $brand,
+                  "statusCode" => 200,
+              ]);
+              
+  
+          }catch(Error $err){
+              return response()->json([
+                  "message" => $err->errorMessage,
+                  "messageInArabic" => $err->messageInArabic,
+                  "statusCode" => $err->statusCode
+              ]);
+              
+      }
     }
 
      
@@ -136,16 +196,16 @@ class BrandController extends Controller
                * System will call the brand with the coming id
                */
               
-              $brand = brand::where("brandId", $brandId)->get();
+              $brand = Brand::where("brandId", $brandId)->first();
   
               /**
                * System checks the brand if exists or not.
                * If no brand is found in the brand table, system will return an error
                */
-              if(count($brand) == 0){
+              if($brand == null){
                   $error = new Error(null);
                   $error->errorMessage = "There is no brand with this id";
-                  $error->messageInArabic = "لا يوجد علامة تجارية مسجل";
+                  $error->messageInArabic = "لا يوجد علامة تجارية مسجلة";
                   $error->statusCode = 404;
                   throw $error;
               }
@@ -153,7 +213,7 @@ class BrandController extends Controller
               $rules = [
                 "brandNameInArabic" => "required|string|min:2|max:30|regex:/^[؀-ۿ\s]+$/" ,
                 "brandName" => "required|string|min:2|max:30|regex:/^[A-Za-z\s]+$/",
-                   ];
+                ];
       
           
               $validator = ValidationError::validationUserInput($request, $rules);
@@ -212,9 +272,64 @@ class BrandController extends Controller
      * @param  \App\Models\Brand  $brand
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Brand $brand)
+    public function destroy(Request $request)
     {
-        // 
+        try{
+  
+            /**
+             * Here we check the coming brand id wheter a number or not.
+             * If a number we will store it in the brandId variable.
+             * If not a number we will assign the variable to zero
+             */
+              $brandId = intval($request->input("brandId")) ? $request->input("brandId") : 0;
+              /**
+               * System will call the brand with the coming id
+               */
+              
+              $brand = Brand::where("brandId", $brandId)->first();
+  
+              /**
+               * System checks the brand if exists or not.
+               * If no brand is found in the brand table, system will return an error
+               */
+              if($brand == null){
+                  $error = new Error(null);
+                  $error->errorMessage = "There is no brand with this id";
+                  $error->messageInArabic = "لا يوجد علامة تجارية مسجلة";
+                  $error->statusCode = 404;
+                  throw $error;
+              }
+             
+              $brand = brand::where("brandId", $brandId)->delete();
+              
+
+            /**
+             * Here we check if the brand deleted or not.
+             * If not deleted successfully. The system returns an error message.
+             */
+            if($brand == 0 ){
+                $error = new Error(null);
+                $error->errorMessage = "There is something wrong happened";
+                $error->messageInArabic = "حصل خطأ";
+                $error->statusCode = 500;
+                throw $error;
+            }
+
+            return response()->json([
+                "message" => "brand has been deleted successfully",
+                "messageInArabic" => "تم حذف العلامة التجارية بنجاح",
+                "statusCode" => 200,
+            ]);
+            
+
+        }catch(Error $err){
+            return response()->json([
+                "message" => $err->errorMessage,
+                "messageInArabic" => $err->messageInArabic,
+                "statusCode" => $err->statusCode
+            ]);
+            
+        }
     }
 }
 

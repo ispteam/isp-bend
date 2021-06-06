@@ -164,13 +164,13 @@ class ShipperController extends Controller
             /**
              * System will call the shipper with the coming id
              */
-            $shipper = Shipper::where("companyId", $companyId)->get();
+            $shipper = Shipper::where("companyId", $companyId)->first();
 
             /**
              * System checks the shipper if exists or not.
              * If no shipper is found in the clients table, system will return an error
              */
-            if(count($shipper) == 0){
+            if($shipper == null){
                 $error = new Error(null);
                 $error->errorMessage = "There is no shipper with this id";
                 $error->messageInArabic = "لا يوجد شركة شحن مسجلة";

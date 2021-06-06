@@ -17,7 +17,27 @@ class MModelController extends Controller
      */
     public function index()
     {
+        try{
+            $models= MModel::with("brands")->get();
+            if(count($models) < 1){
+                $error= new Error(null);
+                $error->message = "No model is found";
+                $error->messageInArabic = "لم يتم ايجاد موديل";
+                $error->statusCode= 404;
+                throw $error;
+            }
 
+            return response()->json([
+                "brandss" => $models,
+                "statusCode" => 200
+            ]);
+        }catch(Error $err){
+            return response()->json([
+                "message" => $err->errorMessage,
+                "messageInArabic" => $err->messageInArabic,
+                "statusCode" => $err->statusCode
+            ], $err->statusCode);
+        }
     }
 
     /**
@@ -95,9 +115,49 @@ class MModelController extends Controller
      * @param  \App\Models\MModel  $mModel
      * @return \Illuminate\Http\Response
      */
-    public function show(MModel $mModel)
+    public function show(Request $request)
     {
-        
+        try{
+
+            /**
+             * Here we check the coming brands id wheter a number or not.
+             * If a number we will store it in the modelId variable.
+             * If not a number we will assign the variable to zero
+             */
+            $modelId = intval($request->input("modelId")) ? $request->input("modelId") : 0;
+
+            /**
+             * System will call the client with the coming id
+             */
+            $model = MModel::with("brands")->where("modelId", $modelId)->first();
+
+            /**
+             * System checks the models if exists or not.
+             * If no models is found in the modelss table, system will return an error
+             */
+            if($model == null){
+                $error = new Error(null);
+                $error->errorMessage = "There is no models with this id";
+                $error->messageInArabic = "لا يوجد موديل مسجل";
+                $error->statusCode = 404;
+                throw $error;
+            }
+
+
+            return response()->json([
+                "models" => $model,
+                "statusCode" => 200,
+            ]);
+            
+
+        }catch(Error $err){
+            return response()->json([
+                "message" => $err->errorMessage,
+                "messageInArabic" => $err->messageInArabic,
+                "statusCode" => $err->statusCode
+            ]);
+            
+        }
     }
 
     /**
@@ -114,15 +174,15 @@ class MModelController extends Controller
             $modelId = intval($request->input("modelId")) ? $request->input("modelId") : 0;
 
             /**
-             * System will call the client with the coming id
+             * System will call the models with the coming id
              */
-            $model = MModel::where("modelId", $modelId)->get();
+            $model = MModel::where("modelId", $modelId)->first();
 
             /**
              * System checks the model if exists or not.
              * If no model is found in the models table, system will return an error
              */
-            if(count($model) == 0){
+            if($model == null ){
                 $error = new Error(null);
                 $error->errorMessage = "There is no model with this id";
                 $error->messageInArabic = "لا يوجد موديل مسجل";
@@ -152,7 +212,7 @@ class MModelController extends Controller
                 "quantity" => $request->input("quantity")
             ]);
     
-            if(count(array($model)) == 0){
+            if($model == null){
                 $error = new Error(null);
                 $error->errorMessage = "There is something wrong happened";
                 $error->messageInArabic = "حصل خطأ";
@@ -182,8 +242,63 @@ class MModelController extends Controller
      * @param  \App\Models\MModel  $mModel
      * @return \Illuminate\Http\Response
      */
-    public function destroy(MModel $mModel)
+    public function destroy(Request $request)
     {
-        //
+        try{
+  
+            /**
+             * Here we check the coming brand id wheter a number or not.
+             * If a number we will store it in the client$modelId variable.
+             * If not a number we will assign the variable to zero
+             */
+              $modelId = intval($request->input("modelId")) ? $request->input("modelId") : 0;
+              /**
+               * System will call the brand with the coming id
+               */
+              
+              $brand = MModel::where("modelId", $modelId)->first();
+  
+              /**
+               * System checks the brand if exists or not.
+               * If no brand is found in the brand table, system will return an error
+               */
+              if($brand == null){
+                  $error = new Error(null);
+                  $error->errorMessage = "There is no model with this id";
+                  $error->messageInArabic = "لا يوجد موديل مسجل";
+                  $error->statusCode = 404;
+                  throw $error;
+              }
+             
+              $brand = MModel::where("modelId", $modelId)->delete();
+              
+
+            /**
+             * Here we check if the brand deleted or not.
+             * If not deleted successfully. The system returns an error message.
+             */
+            if($brand == 0 ){
+                $error = new Error(null);
+                $error->errorMessage = "There is something wrong happened";
+                $error->messageInArabic = "حصل خطأ";
+                $error->statusCode = 500;
+                throw $error;
+            }
+
+            return response()->json([
+                "message" => "model has been deleted successfully",
+                "messageInArabic" => "تم حذف الموديل بنجاح",
+                "statusCode" => 200,
+            ]);
+            
+
+        }catch(Error $err){
+            return response()->json([
+                "message" => $err->errorMessage,
+                "messageInArabic" => $err->messageInArabic,
+                "statusCode" => $err->statusCode
+            ]);
+            
+        }
     }
 }

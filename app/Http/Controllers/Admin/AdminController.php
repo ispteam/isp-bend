@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Validation\ValidationError;
 use App\Models\Admin\Admin;
+use App\Models\Supplier\Supplier;
 use Error;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
@@ -11,15 +12,6 @@ use Illuminate\Support\Facades\Hash;
 
 class AdminController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
-    {
-        
-    }
 
     /**
      * Store a newly created resource in storage.
@@ -113,9 +105,48 @@ class AdminController extends Controller
      * @param  \App\Models\Admin  $admin
      * @return \Illuminate\Http\Response
      */
-    public function show(Admin $admin)
+    public function show(Request $request)
     {
-        //
+        try{
+  
+            /**
+             * Here we check the coming admin id wheter a number or not.
+             * If a number we will store it in the adminId variable.
+             * If not a number we will assign the variable to zero
+             */
+              $adminId = intval($request->input("adminId")) ? $request->input("adminId") : 0;
+              /**
+               * System will call the brand with the coming id
+               */
+              
+              $admin = Admin::where("adminId", $adminId)->first();
+  
+              /**
+               * System checks the admin if exists or not.
+               * If no admin is found in the admin table, system will return an error
+               */
+              if($admin == null){
+                  $error = new Error(null);
+                  $error->errorMessage = "There is no admin with this id";
+                  $error->messageInArabic = "لا يوجد مدير مسجل";
+                  $error->statusCode = 404;
+                  throw $error;
+              }
+  
+              return response()->json([
+                  "admin" => $admin,
+                  "statusCode" => 200,
+              ]);
+              
+  
+          }catch(Error $err){
+              return response()->json([
+                  "message" => $err->errorMessage,
+                  "messageInArabic" => $err->messageInArabic,
+                  "statusCode" => $err->statusCode
+              ]);
+              
+      }
     }
 
 
@@ -134,13 +165,13 @@ class AdminController extends Controller
             $adminId = intval($request->input("adminId")) ? $request->input("adminId") : 0;
 
           
-            $admin = Admin::where("adminId", $adminId)->get();
+            $admin = Admin::where("adminId", $adminId)->first();
 
             
-            if(count($admin) == 0){
+            if($admin == null){
                 $error = new Error(null);
                 $error->errorMessage = "There is no admin with this id";
-                $error->messageInArabic = "لا يوجد عميل مسجل";
+                $error->messageInArabic = "لا يوجد مدير مسجل";
                 $error->statusCode = 404;
                 throw $error;
             }
@@ -208,14 +239,152 @@ class AdminController extends Controller
        }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Admin  $admin
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Admin $admin)
-    {
-        //
+    public function acceptSupplier(Request $request){
+        try{
+
+            $supplierId = intval($request->input("supplierId")) ? $request->input("supplierId") : 0;
+
+            if($supplierId == 0){
+                $error = new Error(null);
+                $error->errorMessage ="Invalid id for supplier";
+                $error->messageInArabic = "معرّف خاطئ للمورّد";
+                $error->statusCode = 422;
+                throw $error;
+            }
+
+            $supplier= Supplier::where("supplierId", $supplierId)->first();
+
+            if($supplier == null) {
+                $error = new Error(null);
+                $error->errorMessage = "There is no supplier with this id";
+                $error->messageInArabic = "لا يوجد عميل مسجل";
+                $error->statusCode = 404;
+                throw $error;
+            }
+
+            $supplier = Supplier::where("supplierId", $supplierId)->update([
+                "verified" => "1"
+            ]);
+
+            if($supplier == 0){
+                $error = new Error(null);
+                $error->errorMessage = "There is something wrong happened";
+                $error->messageInArabic = "حصل خطأ";
+                $error->statusCode = 500;
+                throw $error;
+            }
+
+            return response()->json([
+                "message" => "supplier's account has been updated",
+                "messageInArabic" => "تم تفعيل حساب المورّد",
+                "statusCode" => 200
+            ], 200);
+
+        }catch(Error $err){
+            return response()->json([
+                "message" => $err->errorMessage,
+                "messageInArabic" => $err->messageInArabic,
+                "statusCode" => $err->statusCode
+            ], $err->statusCode);
+        }
+    }
+
+    public function suspendSupplier(Request $request){
+        try{
+
+            $supplierId = intval($request->input("supplierId")) ? $request->input("supplierId") : 0;
+
+            if($supplierId == 0){
+                $error = new Error(null);
+                $error->errorMessage ="Invalid id for supplier";
+                $error->messageInArabic = "معرّف خاطئ للمورّد";
+                $error->statusCode = 422;
+                throw $error;
+            }
+
+            $supplier= Supplier::where("supplierId", $supplierId)->first();
+
+            if($supplier == null) {
+                $error = new Error(null);
+                $error->errorMessage = "There is no supplier with this id";
+                $error->messageInArabic = "لا يوجد عميل مسجل";
+                $error->statusCode = 404;
+                throw $error;
+            }
+
+            $supplier = Supplier::where("supplierId", $supplierId)->update([
+                "verified" => "2"
+            ]);
+
+            if($supplier == 0){
+                $error = new Error(null);
+                $error->errorMessage = "There is something wrong happened";
+                $error->messageInArabic = "حصل خطأ";
+                $error->statusCode = 500;
+                throw $error;
+            }
+
+            return response()->json([
+                "message" => "supplier's account has been suspended",
+                "messageInArabic" => "تم تجميد حساب المورّد",
+                "statusCode" => 200
+            ], 200);
+
+        }catch(Error $err){
+            return response()->json([
+                "message" => $err->errorMessage,
+                "messageInArabic" => $err->messageInArabic,
+                "statusCode" => $err->statusCode
+            ], $err->statusCode);
+        }
+    }
+    public function cancelSupplier(Request $request){
+        try{
+
+            $supplierId = intval($request->input("supplierId")) ? $request->input("supplierId") : 0;
+
+            if($supplierId == 0){
+                $error = new Error(null);
+                $error->errorMessage ="Invalid id for supplier";
+                $error->messageInArabic = "معرّف خاطئ للمورّد";
+                $error->statusCode = 422;
+                throw $error;
+            }
+
+            $supplier= Supplier::where("supplierId", $supplierId)->first();
+
+            if($supplier == null) {
+                $error = new Error(null);
+                $error->errorMessage = "There is no supplier with this id";
+                $error->messageInArabic = "لا يوجد عميل مسجل";
+                $error->statusCode = 404;
+                throw $error;
+            }
+
+            $supplier = Supplier::where("supplierId", $supplierId)->update([
+                "verified" => "3"
+            ]);
+
+            if($supplier == 0){
+                $error = new Error(null);
+                $error->errorMessage = "There is something wrong happened";
+                $error->messageInArabic = "حصل خطأ";
+                $error->statusCode = 500;
+                throw $error;
+            }
+
+            return response()->json([
+                "message" => "supplier's account has been canceled",
+                "messageInArabic" => "تم الغاء حساب المورّد",
+                "statusCode" => 200
+            ], 200);
+
+        }catch(Error $err){
+            return response()->json([
+                "message" => $err->errorMessage,
+                "messageInArabic" => $err->messageInArabic,
+                "statusCode" => $err->statusCode
+            ], $err->statusCode);
+        }
     }
 }

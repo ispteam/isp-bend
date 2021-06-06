@@ -18,7 +18,7 @@ class RequestController extends Controller
      */
     public function index()
     {
-        
+
     }
 
     /**
@@ -41,12 +41,12 @@ class RequestController extends Controller
     {
         try{
 
-            $supplierId = intval($request->input("supplierId")) ? $request->input("supplierId") : 0;
+            // $supplierId = intval($request->input("supplierId")) ? $request->input("supplierId") : 0;
             $clientId = intval($request->input("clientId")) ? $request->input("clientId") : 0;
             $modelId = intval($request->input("modelId")) ? $request->input("modelId") : 0;
     
             // To check the supplier id && client id && model id values if it's equals to zero, then it will throw an error because there is no id with id zero
-            if($supplierId == 0 || $clientId == 0 || $modelId == 0){
+            if($clientId == 0 || $modelId == 0){
                 $error = new Error(null);
                 $error->errorMessage ="Invalid id for supplier or mdoel or client";
                 $error->messageInArabic = "معرّف خاطئ للمورّد او الموديل او العميل";
@@ -145,8 +145,9 @@ class RequestController extends Controller
         try{
     
             $supplierId = intval($request->input("supplierId")) ? $request->input("supplierId") : 0;
+            $requestId= intval($request->input("requestId")) ? $request->input("requestId") : 0;
 
-            if($supplierId == 0){
+            if($supplierId == 0 || $requestId == 0){
                 $error = new Error(null);
                 $error->errorMessage ="Invalid id for supplier";
                 $error->messageInArabic = "معرّف خاطئ للمورّد";
@@ -154,12 +155,26 @@ class RequestController extends Controller
                 throw $error;
             }
 
+            $rules= [
+                "amount" => "required|numeric|regex:/^[+-]?([0-9]*[.])?[0-9]+/"
+            ];
 
-            $requestId= intval($request->input("requestId")) ? $request->input("requestId") : 0;
+
+            $validator = ValidationError::validationUserInput($request, $rules);
+
+            if($validator->fails()){
+                $error = new Error(null);
+                $error->errorMessage = $validator->errors();
+                $error->messageInArabic = "";
+                $error->statusCode = 422;
+                throw $error;
+            }
+
+            
 
             $Rrequest= Rrequest::where("requestId", $requestId)->first();
 
-            if(count(array($Rrequest)) == 0){
+            if($Rrequest == null){
                 $error = new Error(null);
                 $error->errorMessage = "There is no request with this id";
                 $error->messageInArabic = "لا يوجد طلب مسجل";
@@ -173,10 +188,9 @@ class RequestController extends Controller
             $amounts= json_decode($Rrequest->amounts);
 
             //Check if the amounts array is null, then we make the amount as an array 
-            if(is_null($amounts)){
+            if($amounts == ""){
                 $amounts= [];
             }
-
             /**
              * We push the amount that supplier wants to add + his name
              * The array contains object will be like that: 
@@ -193,6 +207,7 @@ class RequestController extends Controller
 
             //we just update the amounts json array that holds the amount and the supplier name
             $request = Rrequest::where("requestId", $requestId)->update([
+                // "amounts" => json_encode($amounts),
                 "amounts" => json_encode($amounts),
             ]);
     
@@ -222,12 +237,33 @@ class RequestController extends Controller
 
 
 
-    public function showFullAmounts(){
+    public function showFullAmounts(Request $request){
         try{
-            $request= Rrequest::where("requestId", "1")->first();
+
+            $requestId= intval($request->input("requestId")) ? $request->input("requestId") : 0;
+
+            if($requestId == 0){
+                $error = new Error(null);
+                $error->errorMessage ="Invalid id for supplier";
+                $error->messageInArabic = "معرّف خاطئ للمورّد";
+                $error->statusCode = 422;
+                throw $error;
+            }
+
+            $request= Rrequest::where("requestId", $requestId)->first();
             //We just return the amounts array that contains supplier name and his amount
+            // $amounts = json_decode($request->amounts);
+
+            if($request == null){
+                $error = new Error(null);
+                $error->errorMessage = "There is no request with this id";
+                $error->messageInArabic = "لا يوجد طلب مسجل";
+                $error->statusCode = 404;
+                throw $error;
+            }
+
             $amounts = json_decode($request->amounts);
-            if(is_null($amounts)){
+            if($amounts == null){
                 $error = new Error(null);
                 $error->errorMessage = "There is no amount yet";
                 $error->messageInArabic = "لا يوجد سعر مسجل حتى الان";
@@ -264,6 +300,7 @@ class RequestController extends Controller
             $request= Rrequest::where("requestId", $requestId)->update([
                 "finalAmount" => $request->input("finalAmount"),
                 "supplierId" => $supplierId,
+                "requestStatus" => "1",
                 "amounts" => null
             ]);
 
@@ -278,7 +315,7 @@ class RequestController extends Controller
             return response()->json([
                 "message" => "final amount has been added successfully",
                 "messageInArabic" => "تم اضافة السعر النهائي الجديد بنجاح",
-                "statusCode" => 201,
+                "statusCode" => 200,
             ], 200);
         }catch(Error $err){
             return response()->json([

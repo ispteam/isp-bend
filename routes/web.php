@@ -15,6 +15,6 @@ use Illuminate\Http\Request;
 */
 
 
-Route::get('/clients', function(){
-    return view('clients.clients');
-});
+// Route::get('/', function(){
+//     return view('index');
+// });

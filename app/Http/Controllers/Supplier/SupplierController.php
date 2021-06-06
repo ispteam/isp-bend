@@ -155,13 +155,13 @@ class SupplierController extends Controller
             /**
              * System will call the client with the coming id
              */
-            $supplier = Supplier::where("supplierId", $supplierId)->get();
+            $supplier = Supplier::where("supplierId", $supplierId)->first();
 
             /**
              * System checks the supplier if exists or not.
              * If no supplier is found in the suppliers table, system will return an error
              */
-            if(count($supplier) == 0){
+            if($supplier == null){
                 $error = new Error(null);
                 $error->errorMessage = "There is no supplier with this id";
                 $error->messageInArabic = "لا يوجد موّرد مسجل";
@@ -217,7 +217,7 @@ class SupplierController extends Controller
              * Here we check if there a supplier inserted or not.
              * If not inserted successfully. The system returns an error message.
              */
-            if(count(array($supplier))== 0 ){
+            if($supplier == 0 ){
                 $error = new Error(null);
                 $error->errorMessage = "There is something wrong happened";
                 $error->messageInArabic = "حصل خطأ";

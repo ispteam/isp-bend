@@ -20,7 +20,7 @@ class CreateRequestsTable extends Migration
             $table->json("address");
             $table->string("field");
             $table->string("quantity");
-            $table->json("amounts")->nullable();
+            $table->string("amounts")->nullable();
             $table->string("finalAmount");
             $table->unsignedBigInteger("clientId");
             $table->unsignedBigInteger("modelId");

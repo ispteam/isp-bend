@@ -8,6 +8,7 @@ use App\Http\Controllers\Moderator\ModeratorController;
 use App\Http\Controllers\RRequest\RequestController;
 use App\Http\Controllers\Shipper\ShipperController;
 use App\Http\Controllers\Supplier\SupplierController;
+use App\Models\BridgeTables\ModeratorSupplier;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -24,6 +25,12 @@ use Illuminate\Support\Facades\Route;
 /** NOTE MIDDLEWARE FOR AUTH SHOULD BE ADDED INSIDE THE CONTROLLER*/
 Route::prefix('admin')->group(function () {
     Route::apiResource('/admin-operations', AdminController::class);
+    //To accept a new supplier
+    Route::patch("/accept-supplier", [AdminController::class, 'acceptSupplier']);
+    //To suspend a supplier
+    Route::patch("/suspend-supplier", [AdminController::class, 'suspendSupplier']);
+    //To cancel a supplier
+    Route::patch("/cancel-supplier", [AdminController::class, 'cancelSupplier']);
 });
 
 
@@ -39,6 +46,11 @@ Route::prefix('admin')->group(function () {
 /** NOTE MIDDLEWARE FOR AUTH SHOULD BE ADDED INSIDE THE CONTROLLER */
 Route::prefix('moderator')->group(function () {
     Route::apiResource('/moderator-operations', ModeratorController::class);
+    //To update a client
+    Route::patch("/update-client", [ModeratorController::class, 'updateClient']);
+    //To update a supplier
+    Route::patch("/update-supplier", [ModeratorController::class, 'updateSupplier']);
+    
 });
 
 /**
@@ -114,13 +126,13 @@ Route::prefix('model')->group(function () {
 Route::prefix('request')->group(function () {
     Route::apiResource('/request-operations', RequestController::class);
     //To update the amount of each supplier to be displayed to the client er to choose from
-    Route::put("/update-amounts", [RequestController::class, 'updateAmounts']);
+    Route::patch("/update-amounts", [RequestController::class, 'updateAmounts']);
 
     //To show full data of each supplier with his amount offer 
     Route::get("/show-amounts", [RequestController::class, 'showFullAmounts']);
 
     //To update the request with the final amount + supplier id which has the best offer
-    Route::post("/select-best-price", [RequestController::class, 'selectBestPrice']);
+    Route::patch("/select-best-price", [RequestController::class, 'selectBestPrice']);
 });
 
   /**

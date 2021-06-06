@@ -24,7 +24,27 @@ class ClientController extends Controller
 
     public function index()
     {
+        try{
+            $clients= Client::with("requests")->get();
+            if(count($clients) < 1){
+                $error= new Error(null);
+                $error->message = "No clients are found";
+                $error->messageInArabic = "لم يتم ايجاد عملاء";
+                $error->statusCode= 404;
+                throw $error;
+            }
 
+            return response()->json([
+                "clients" => $clients,
+                "statusCode" => 200
+            ]);
+        }catch(Error $err){
+            return response()->json([
+                "message" => $err->errorMessage,
+                "messageInArabic" => $err->messageInArabic,
+                "statusCode" => $err->statusCode
+            ], $err->statusCode);
+        }
     }
 
     /**
@@ -34,7 +54,7 @@ class ClientController extends Controller
      * @return \Illuminate\Http\Response
      */
 
-    // /^[a-zA-Zأ-ي\s]*$/u
+
 
     public function store(Request $request)
     {
@@ -146,6 +166,47 @@ class ClientController extends Controller
      */
     public function show(Request $request)
     {
+        try{
+
+            /**
+             * Here we check the coming client id wheter a number or not.
+             * If a number we will store it in the clientId variable.
+             * If not a number we will assign the variable to zero
+             */
+            $clientId = intval($request->input("clientId")) ? $request->input("clientId") : 0;
+
+            /**
+             * System will call the client with the coming id
+             */
+            $client = Client::with("requests")->where("clientId", $clientId)->first();
+
+            /**
+             * System checks the client if exists or not.
+             * If no client is found in the clients table, system will return an error
+             */
+            if($client == null){
+                $error = new Error(null);
+                $error->errorMessage = "There is no client with this id";
+                $error->messageInArabic = "لا يوجد عميل مسجل";
+                $error->statusCode = 404;
+                throw $error;
+            }
+
+
+            return response()->json([
+                "client" => $client,
+                "statusCode" => 200,
+            ]);
+            
+
+        }catch(Error $err){
+            return response()->json([
+                "message" => $err->errorMessage,
+                "messageInArabic" => $err->messageInArabic,
+                "statusCode" => $err->statusCode
+            ]);
+            
+        }
     }
 
 
@@ -171,13 +232,13 @@ class ClientController extends Controller
             /**
              * System will call the client with the coming id
              */
-            $client = Client::where("clientId", $clientId)->get();
+            $client = Client::where("clientId", $clientId)->first();
 
             /**
              * System checks the client if exists or not.
              * If no client is found in the clients table, system will return an error
              */
-            if(count($client) == 0){
+            if($client == null){
                 $error = new Error(null);
                 $error->errorMessage = "There is no client with this id";
                 $error->messageInArabic = "لا يوجد عميل مسجل";
@@ -257,6 +318,61 @@ class ClientController extends Controller
      */
     public function destroy(Request $request)
     {
-        
+        try{
+  
+            /**
+             * Here we check the coming brand id wheter a number or not.
+             * If a number we will store it in the client$clientId variable.
+             * If not a number we will assign the variable to zero
+             */
+              $clientId = intval($request->input("clientId")) ? $request->input("clientId") : 0;
+              /**
+               * System will call the brand with the coming id
+               */
+              
+              $brand = Client::where("client$clientId", $clientId)->first();
+  
+              /**
+               * System checks the brand if exists or not.
+               * If no brand is found in the brand table, system will return an error
+               */
+              if($brand == null){
+                  $error = new Error(null);
+                  $error->errorMessage = "There is no client with this id";
+                  $error->messageInArabic = "لا يوجد عميل مسجل";
+                  $error->statusCode = 404;
+                  throw $error;
+              }
+             
+              $brand = Client::where("clientId", $clientId)->delete();
+              
+
+            /**
+             * Here we check if the brand deleted or not.
+             * If not deleted successfully. The system returns an error message.
+             */
+            if($brand == 0 ){
+                $error = new Error(null);
+                $error->errorMessage = "There is something wrong happened";
+                $error->messageInArabic = "حصل خطأ";
+                $error->statusCode = 500;
+                throw $error;
+            }
+
+            return response()->json([
+                "message" => "client has been deleted successfully",
+                "messageInArabic" => "تم حذف العميل بنجاح",
+                "statusCode" => 200,
+            ]);
+            
+
+        }catch(Error $err){
+            return response()->json([
+                "message" => $err->errorMessage,
+                "messageInArabic" => $err->messageInArabic,
+                "statusCode" => $err->statusCode
+            ]);
+            
+        }
     }
 }

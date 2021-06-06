@@ -2,6 +2,7 @@
 
 namespace App\Models\Brand;
 
+use App\Models\Model\MModel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -11,5 +12,14 @@ class Brand extends Model
     protected $table = "brands";
     protected $primarykey = "brandId";
     protected $fillable = ["brandName","brandNameInArabic"];
+
+
+    public function models(){
+        return $this->hasMany(
+            MModel::class,
+            "brandId",
+            "brandId"
+        );
+    }
 
 }
