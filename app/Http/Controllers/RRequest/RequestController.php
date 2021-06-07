@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\RRequest;
 
 use App\Http\Validation\ValidationError;
+use App\Models\Model\MModel;
 use App\Models\RRequest\Request as Rrequest;
 use App\Models\Supplier\Supplier;
 use Error;
@@ -11,25 +12,6 @@ use Illuminate\Http\Request;
 
 class RequestController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
-    {
-
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
 
     /**
      * Store a newly created resource in storage.
@@ -117,27 +99,6 @@ class RequestController extends Controller
         //
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Request $request)
-    {
-        //
-    }
 
 
     public function updateAmounts(Request $request)
@@ -182,6 +143,18 @@ class RequestController extends Controller
                 throw $error;
             }
 
+
+            //Check if the final amount has been chose, so supplier can't add a new price
+            if($Rrequest->finalAmount > 0){
+
+                $error = new Error(null);
+                $error->errorMessage = "Adding amounts period has been finished";
+                $error->messageInArabic = "فترة اضافة سعر جديد انتهت";
+                $error->statusCode = 404;
+                throw $error;
+
+            }
+
             $newAmount= $request->input("amount");
             // $sanitizedAmount= filter_var($newAmount, FILTER_SANITIZE_NUMBER_FLOAT);
 
@@ -196,12 +169,14 @@ class RequestController extends Controller
              * The array contains object will be like that: 
              * [
              *   {
-             *      supplierName: Aziz,
-             *      amount: 120
+             *      supplierNameInEnglish: Aziz,
+             *      supplierNameInArabic: "عزيز",
+             *      amount: 120.20
              *   }
              * ]
              */
-            array_push($amounts, ["amount" => $newAmount, "supplierName" => Supplier::where("supplierId", $supplierId)->get("name")->first()->name]);
+            $selectedSupplier= Supplier::where("supplierId", $supplierId)->first();
+            array_push($amounts, ["amount" => $newAmount, "supplierNameInEnglish" => $selectedSupplier->name , "supplierNameInArabic" => $selectedSupplier->nameInArabic]);
 
             
 
@@ -272,7 +247,8 @@ class RequestController extends Controller
             }
             return response()->json([
                 "data" => $amounts
-            ]);
+            ], 200);
+
         }catch(Error $err){
             return response()->json([
                 "message" => $err->errorMessage,
@@ -296,15 +272,56 @@ class RequestController extends Controller
                 throw $error;
             }
 
+               
+
+              $selectedRequest= Rrequest::where("requestId", $requestId)->first();
+
+               /**
+               * System checks the request if exists or not.
+               * If no request is found in the request table, system will return an error
+               */
+
+              if($selectedRequest == null){
+                $error = new Error(null);
+                $error->errorMessage = "There is no request with this id";
+                $error->messageInArabic = "لا يوجد طلب مسجل";
+                $error->statusCode = 404;
+                throw $error;
+            }
+
+
+              //We access to the model with model id to update the quantity
+              $model = MModel::where("modelId", $selectedRequest->modelId)->first();
+
+              //Set the new quantity
+              $newQuantity = $model->quantity - $selectedRequest->quantity;
+  
+              $updatedModel = MModel::where("modelId", $selectedRequest->modelId)->update([
+                  "quantity" => $newQuantity
+              ]);
+  
+              //Check if the model whether been updated or not
+              if($updatedModel == 0){
+                  $error = new Error(null);
+                  $error->errorMessage = "There is something wrong happened";
+                  $error->messageInArabic = "حصل خطأ";
+                  $error->statusCode = 500;
+                  throw $error;
+              }
+           
+            
+
+           
+
             //To add the final amount that client chose, and add the supplier id of best supplier's offer
-            $request= Rrequest::where("requestId", $requestId)->update([
+            $updatedRequest= Rrequest::where("requestId", $requestId)->update([
                 "finalAmount" => $request->input("finalAmount"),
                 "supplierId" => $supplierId,
                 "requestStatus" => "1",
                 "amounts" => null
             ]);
 
-            if($request == 0){
+            if($updatedRequest == 0){
                 $error = new Error(null);
                 $error->errorMessage = "There is something wrong happened";
                 $error->messageInArabic = "حصل خطأ";
@@ -312,11 +329,33 @@ class RequestController extends Controller
                 throw $error;
             }
 
+            //We access to the model with model id to update the quantity
+            $model = MModel::where("modelId", $selectedRequest->modelId)->first();
+
+            //Set the new quantity
+            $newQuantity = $model->quantity - $selectedRequest->quantity;
+
+            $updatedModel = MModel::where("modelId", $selectedRequest->modelId)->update([
+                "quantity" => $newQuantity
+            ]);
+
+            //Check if the model whether been updated or not
+            if($updatedModel == 0){
+                $error = new Error(null);
+                $error->errorMessage = "There is something wrong happened";
+                $error->messageInArabic = "حصل خطأ";
+                $error->statusCode = 500;
+                throw $error;
+            }
+            
+
+
             return response()->json([
                 "message" => "final amount has been added successfully",
                 "messageInArabic" => "تم اضافة السعر النهائي الجديد بنجاح",
                 "statusCode" => 200,
             ], 200);
+
         }catch(Error $err){
             return response()->json([
                 "message" => $err->errorMessage,

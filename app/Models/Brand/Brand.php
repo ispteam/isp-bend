@@ -13,7 +13,6 @@ class Brand extends Model
     protected $primarykey = "brandId";
     protected $fillable = ["brandName","brandNameInArabic"];
 
-
     public function models(){
         return $this->hasMany(
             MModel::class,

@@ -12,6 +12,7 @@ class Client extends Model
     protected $table="clients";
     protected $primarykey= "clientId";
     protected $fillable = ["name", "password", "email", "nameInArabic", "phone", "address"];
+    protected $hidden= ["password"];
 
     public function requests(){
         return $this->hasMany(

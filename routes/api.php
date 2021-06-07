@@ -78,6 +78,8 @@ Route::prefix('supplier')->group(function () {
 /** NOTE MIDDLEWARE FOR AUTH SHOULD BE ADDED IN SOME ROUTE INSIDE THE CONTROLLER */
 Route::prefix('client')->group(function () {
     Route::apiResource('/client-operations', ClientController::class);
+    Route::get("/all-requests", [ClientController::class, 'allRequests']);
+    Route::get("/single-request", [ClientController::class, 'singleRequest']);
 });
 
   /**

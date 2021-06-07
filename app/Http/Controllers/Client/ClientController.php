@@ -7,6 +7,7 @@ use App\Http\Validation\ValidationError;
 use App\Models\Client\Client;
 use Error;
 use Illuminate\Http\Request;
+use App\Models\RRequest\Request as Rrequest;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Hash;
 
@@ -37,7 +38,8 @@ class ClientController extends Controller
             return response()->json([
                 "clients" => $clients,
                 "statusCode" => 200
-            ]);
+            ], 200);
+            
         }catch(Error $err){
             return response()->json([
                 "message" => $err->errorMessage,
@@ -129,7 +131,7 @@ class ClientController extends Controller
              * Here we check if there a client inserted or not.
              * If not inserted successfully. The system returns an error message.
              */
-            if(count(array($client))== 0 ){
+            if($client == 0 ){
                 $error = new Error(null);
                 $error->errorMessage = "There is something wrong happened";
                 $error->messageInArabic = "حصل خطأ";
@@ -144,7 +146,7 @@ class ClientController extends Controller
                 "message" => "Client has successfully registered",
                 "messageInArabic" => "تم تسجيل العميل بنجاح",
                 "statusCode" => 201,
-            ]);
+            ], 200);
             
 
         }catch(Error $err){
@@ -152,7 +154,7 @@ class ClientController extends Controller
                 "message" => $err->errorMessage,
                 "messageInArabic" => $err->messageInArabic,
                 "statusCode" => $err->statusCode
-            ]);
+            ], $err->statusCode);
             
         }
         
@@ -196,7 +198,7 @@ class ClientController extends Controller
             return response()->json([
                 "client" => $client,
                 "statusCode" => 200,
-            ]);
+            ], 200);
             
 
         }catch(Error $err){
@@ -204,7 +206,7 @@ class ClientController extends Controller
                 "message" => $err->errorMessage,
                 "messageInArabic" => $err->messageInArabic,
                 "statusCode" => $err->statusCode
-            ]);
+            ], $err->statusCode);
             
         }
     }
@@ -249,7 +251,7 @@ class ClientController extends Controller
             $rules = [
                 "nameInArabic" => "required|string|min:2|max:30|regex:/^[؀-ۿ\s]+$/",
                 "name" => "required|string|min:2|max:30|regex:/^[A-Za-z\s]+$/",
-                "email" =>"required|email",
+                "email" =>"required|email|unique:clients,email",
                 "address" => "required",
                 "phone"  => "required|string|min:10|max:13|regex:/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/",
             ];
@@ -297,7 +299,7 @@ class ClientController extends Controller
                 "message" => "Client has been updated successfully",
                 "messageInArabic" => "تم تحديث العميل بنجاح",
                 "statusCode" => 200,
-            ]);
+            ], 200);
             
 
         }catch(Error $err){
@@ -305,10 +307,10 @@ class ClientController extends Controller
                 "message" => $err->errorMessage,
                 "messageInArabic" => $err->messageInArabic,
                 "statusCode" => $err->statusCode
-            ]);
+            ], $err->statusCode);
             
     }
-}
+    }
 
     /**
      * Remove the specified resource from storage.
@@ -321,7 +323,7 @@ class ClientController extends Controller
         try{
   
             /**
-             * Here we check the coming brand id wheter a number or not.
+             * Here we check the coming client id wheter a number or not.
              * If a number we will store it in the client$clientId variable.
              * If not a number we will assign the variable to zero
              */
@@ -330,13 +332,13 @@ class ClientController extends Controller
                * System will call the brand with the coming id
                */
               
-              $brand = Client::where("client$clientId", $clientId)->first();
+              $client = Client::where("clientId", $clientId)->first();
   
               /**
-               * System checks the brand if exists or not.
-               * If no brand is found in the brand table, system will return an error
+               * System checks the client if exists or not.
+               * If no client is found in the client table, system will return an error
                */
-              if($brand == null){
+              if($client == null){
                   $error = new Error(null);
                   $error->errorMessage = "There is no client with this id";
                   $error->messageInArabic = "لا يوجد عميل مسجل";
@@ -344,14 +346,14 @@ class ClientController extends Controller
                   throw $error;
               }
              
-              $brand = Client::where("clientId", $clientId)->delete();
+              $client = Client::where("clientId", $clientId)->delete();
               
 
             /**
-             * Here we check if the brand deleted or not.
+             * Here we check if the client deleted or not.
              * If not deleted successfully. The system returns an error message.
              */
-            if($brand == 0 ){
+            if($client == 0 ){
                 $error = new Error(null);
                 $error->errorMessage = "There is something wrong happened";
                 $error->messageInArabic = "حصل خطأ";
@@ -363,7 +365,7 @@ class ClientController extends Controller
                 "message" => "client has been deleted successfully",
                 "messageInArabic" => "تم حذف العميل بنجاح",
                 "statusCode" => 200,
-            ]);
+            ], 200);
             
 
         }catch(Error $err){
@@ -371,7 +373,124 @@ class ClientController extends Controller
                 "message" => $err->errorMessage,
                 "messageInArabic" => $err->messageInArabic,
                 "statusCode" => $err->statusCode
-            ]);
+            ], $err->statusCode);
+            
+        }
+    }
+
+    
+    public function allRequests(Request $request)
+    {
+        try{
+  
+            /**
+             * Here we check the coming client id wheter a number or not.
+             * If a number we will store it in the client$clientId variable.
+             * If not a number we will assign the variable to zero
+             */
+              $clientId = intval($request->input("clientId")) ? $request->input("clientId") : 0;
+              /**
+               * System will call the brand with the coming id
+               */
+              
+              if($clientId == 0 ){
+                $error = new Error(null);
+                $error->errorMessage ="Invalid id for client";
+                $error->messageInArabic = "معرّف خاطئ للعميل";
+                $error->statusCode = 422;
+                throw $error;
+            }
+
+                /**
+               * System will call the brand with the coming id
+               * The single request will carry the model as well, becasue clients want to see the models information
+               */
+
+              $selectedRequests = Rrequest::with("models")->where("clientId", $clientId)->get();
+  
+              /**
+               * System checks the client if exists or not.
+               * If no client is found in the client table, system will return an error
+               */
+              if(count($selectedRequests) < 1){
+                  $error = new Error(null);
+                  $error->errorMessage = "There is no requests related to this client";
+                  $error->messageInArabic = "لا يوجد طلبات مسجلة لهذا العميل";
+                  $error->statusCode = 404;
+                  throw $error;
+              }
+             
+             
+
+            return response()->json([
+                "requests" => $selectedRequests,
+                "statusCode" => 200,
+            ], 200);
+            
+
+        }catch(Error $err){
+            return response()->json([
+                "message" => $err->errorMessage,
+                "messageInArabic" => $err->messageInArabic,
+                "statusCode" => $err->statusCode
+            ], $err->statusCode);
+            
+        }
+    }
+
+    public function singleRequest(Request $request)
+    {
+        try{
+  
+            /**
+             * Here we check the coming client id wheter a number or not.
+             * If a number we will store it in the client$clientId variable.
+             * If not a number we will assign the variable to zero
+             */
+              $clientId = intval($request->input("clientId")) ? $request->input("clientId") : 0;
+              $requestId = intval($request->input("requestId")) ? $request->input("requestId") : 0;
+
+              if($clientId == 0 || $requestId == 0){
+                $error = new Error(null);
+                $error->errorMessage ="Invalid id for request or client";
+                $error->messageInArabic = "معرّف خاطئ للطلب أو العميل";
+                $error->statusCode = 422;
+                throw $error;
+            }
+
+              /**
+               * System will call the brand with the coming id
+               * The single request will carry the model as well, becasue clients want to see the models information
+               */
+              
+              $selectedRequest = Rrequest::with("models")->where("clientId", $clientId)->where("requestId", $requestId)->first();
+  
+              /**
+               * System checks the client if exists or not.
+               * If no client is found in the client table, system will return an error
+               */
+              if($selectedRequest == null){
+                  $error = new Error(null);
+                  $error->errorMessage = "There is no requests related to this client";
+                  $error->messageInArabic = "لا يوجد طلبات مسجلة لهذا العميل";
+                  $error->statusCode = 404;
+                  throw $error;
+              }
+             
+             
+
+            return response()->json([
+                "requests" => $selectedRequest,
+                "statusCode" => 200,
+            ], 200);
+            
+
+        }catch(Error $err){
+            return response()->json([
+                "message" => $err->errorMessage,
+                "messageInArabic" => $err->messageInArabic,
+                "statusCode" => $err->statusCode
+            ], $err->statusCode);
             
         }
     }

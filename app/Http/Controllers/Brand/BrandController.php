@@ -30,7 +30,7 @@ class BrandController extends Controller
             return response()->json([
                 "clients" => $brands,
                 "statusCode" => 200
-            ]);
+            ], 200);
         }catch(Error $err){
             return response()->json([
                 "message" => $err->errorMessage,
@@ -114,7 +114,7 @@ class BrandController extends Controller
                 "message" => "brand has successfully registered",
                 "messageInArabic" => "تم تسجيل العلامة تجارية بنجاح",
                 "statusCode" => 201,
-            ]);
+            ], 201);
             
 
         }catch(Error $err){
@@ -128,7 +128,7 @@ class BrandController extends Controller
             return response()->json([
                 "message" => $err->errorMessage,
                 "statusCode" => $err->statusCode
-            ]);
+            ], $err->statusCode);
             
         }
         
@@ -165,7 +165,7 @@ class BrandController extends Controller
               return response()->json([
                   "brand" => $brand,
                   "statusCode" => 200,
-              ]);
+              ], 200);
               
   
           }catch(Error $err){
@@ -173,7 +173,7 @@ class BrandController extends Controller
                   "message" => $err->errorMessage,
                   "messageInArabic" => $err->messageInArabic,
                   "statusCode" => $err->statusCode
-              ]);
+              ], $err->statusCode);
               
       }
     }
@@ -254,7 +254,7 @@ class BrandController extends Controller
                   "message" => "brand has been updated successfully",
                   "messageInArabic" => "تم تحديث العلامة التجارية بنجاح",
                   "statusCode" => 200,
-              ]);
+              ], 200);
               
   
           }catch(Error $err){
@@ -262,10 +262,10 @@ class BrandController extends Controller
                   "message" => $err->errorMessage,
                   "messageInArabic" => $err->messageInArabic,
                   "statusCode" => $err->statusCode
-              ]);
+              ], $err->statusCode);
               
       }
-  }
+      }
     /**
      * Remove the specified resource from storage.
      *
@@ -319,7 +319,7 @@ class BrandController extends Controller
                 "message" => "brand has been deleted successfully",
                 "messageInArabic" => "تم حذف العلامة التجارية بنجاح",
                 "statusCode" => 200,
-            ]);
+            ], 200);
             
 
         }catch(Error $err){
@@ -327,7 +327,7 @@ class BrandController extends Controller
                 "message" => $err->errorMessage,
                 "messageInArabic" => $err->messageInArabic,
                 "statusCode" => $err->statusCode
-            ]);
+            ], $err->statusCode);
             
         }
     }

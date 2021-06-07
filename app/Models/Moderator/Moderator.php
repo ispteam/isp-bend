@@ -11,6 +11,7 @@ class Moderator extends Model
     
     protected $table = "moderators";
     protected $primarykey = "moderatorId";
-    protected $fillable = ["name","nameInArabic","email", "password"];
+    protected $fillable = ["name","nameInArabic","email", "password", "phone"];
+    protected $hidden = ["password"];
 
 }

@@ -11,4 +11,5 @@ class Admin extends Model
     protected $table= "admins";
     protected $primarykey = "adminId";
     protected $fillable = ["name", "nameInArabic", "password", "phone", "enterId", "email"];
+    protected $hiddden = ["password"];
 }

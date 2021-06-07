@@ -30,7 +30,7 @@ class MModelController extends Controller
             return response()->json([
                 "brandss" => $models,
                 "statusCode" => 200
-            ]);
+            ], 200);
         }catch(Error $err){
             return response()->json([
                 "message" => $err->errorMessage,
@@ -85,7 +85,7 @@ class MModelController extends Controller
             "quantity" => $request->input("quantity")
         ]);
 
-        if(count(array($model)) == 0){
+        if($model == 0){
             $error = new Error(null);
             $error->errorMessage = "There is something wrong happened";
             $error->messageInArabic = "حصل خطأ";
@@ -147,7 +147,7 @@ class MModelController extends Controller
             return response()->json([
                 "models" => $model,
                 "statusCode" => 200,
-            ]);
+            ], 200);
             
 
         }catch(Error $err){
@@ -155,7 +155,7 @@ class MModelController extends Controller
                 "message" => $err->errorMessage,
                 "messageInArabic" => $err->messageInArabic,
                 "statusCode" => $err->statusCode
-            ]);
+            ], $err->statusCode);
             
         }
     }
@@ -212,7 +212,7 @@ class MModelController extends Controller
                 "quantity" => $request->input("quantity")
             ]);
     
-            if($model == null){
+            if($model == 0){
                 $error = new Error(null);
                 $error->errorMessage = "There is something wrong happened";
                 $error->messageInArabic = "حصل خطأ";
@@ -223,8 +223,8 @@ class MModelController extends Controller
             return response()->json([
                 "message" => "model has been updated successfully",
                 "messageInArabic" => "تم تحديث الموديل بنجاح",
-                "statusCode" => 201,
-            ], 201);
+                "statusCode" => 200,
+            ], 200);
     
     
             }catch(Error $err){
@@ -289,7 +289,7 @@ class MModelController extends Controller
                 "message" => "model has been deleted successfully",
                 "messageInArabic" => "تم حذف الموديل بنجاح",
                 "statusCode" => 200,
-            ]);
+            ], 200);
             
 
         }catch(Error $err){
@@ -297,8 +297,9 @@ class MModelController extends Controller
                 "message" => $err->errorMessage,
                 "messageInArabic" => $err->messageInArabic,
                 "statusCode" => $err->statusCode
-            ]);
+            ], $err->statusCode);
             
         }
     }
+
 }

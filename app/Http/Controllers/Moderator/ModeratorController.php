@@ -19,7 +19,27 @@ class ModeratorController extends Controller
      */
     public function index()
     {
-        //
+        try{
+            $moderators= Moderator::all()->toArray();
+            if(count($moderators) < 1){
+                $error= new Error(null);
+                $error->message = "No moderators are found";
+                $error->messageInArabic = "لم يتم ايجاد مشرفين";
+                $error->statusCode= 404;
+                throw $error;
+            }
+
+            return response()->json([
+                "moderators" => $moderators,
+                "statusCode" => 200
+            ], 200);
+        }catch(Error $err){
+            return response()->json([
+                "message" => $err->errorMessage,
+                "messageInArabic" => $err->messageInArabic,
+                "statusCode" => $err->statusCode
+            ], $err->statusCode);
+        }
     }
 
    
@@ -53,7 +73,7 @@ class ModeratorController extends Controller
                 "name" => "required|string|min:2|max:30|regex:/^[A-Za-z\s]+$/",
                 "password" => "required|string|min:7|max:20|regex:/^[A-Za-z\s].+$/",
                 "email" =>"required|email|unique:moderators,email",
-                "phone"  => "required|string|min:10|max:13|unique:clients,phone|regex:/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/"
+                "phone"  => "required|string|min:10|max:13|unique:moderators,phone|regex:/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/"
             ];
     
             /**
@@ -84,6 +104,7 @@ class ModeratorController extends Controller
                 "name" => $request->input("name"),
                 "password" => Hash::make($request->input("password")),
                 "email"=> $request->input("email"),
+                "phone" => $request->input("phone")
             ]);
 
 
@@ -91,7 +112,7 @@ class ModeratorController extends Controller
              * Here we check if there a Moderator inserted or not.
              * If not inserted successfully. The system returns an error message.
              */
-            if(count(array($moderator))== 0 ){
+            if($moderator == 0 ){
                 $error = new Error(null);
                 $error->errorMessage = "There is something wrong happened";
                 $error->messageInArabic = "حصل خطأ";
@@ -103,15 +124,15 @@ class ModeratorController extends Controller
                 "message" => "Moderator has successfully registered",
                 "messageInArabic" => "تم تسجيل المشرف بنجاح",
                 "statusCode" => 201,
-            ]);
+            ], 201);
             
 
         }catch(Error $err){
             return response()->json([
                 "message" => $err->errorMessage,
-                "message" => $err->messageInArabic,
+                "messageInArabic" => $err->messageInArabic,
                 "statusCode" => $err->statusCode
-            ]);
+            ], $err->statusCode);
             
         }
         
@@ -124,9 +145,49 @@ class ModeratorController extends Controller
      * @param  \App\Models\Moderator  $moderator
      * @return \Illuminate\Http\Response
      */
-    public function show(Moderator $moderator)
+    public function show(Request $request)
     {
-        //
+        try{
+
+            /**
+             * Here we check the coming client id wheter a number or not.
+             * If a number we will store it in the moderatorId variable.
+             * If not a number we will assign the variable to zero
+             */
+            $moderatorId = intval($request->input("moderatorId")) ? $request->input("moderatorId") : 0;
+
+            /**
+             * System will call the client with the coming id
+             */
+            $moderator = moderator::where("moderatorId", $moderatorId)->first();
+
+            /**
+             * System checks the moderator if exists or not.
+             * If no moderator is found in the moderators table, system will return an error
+             */
+            if($moderator == null){
+                $error = new Error(null);
+                $error->errorMessage = "There is no moderator with this id";
+                $error->messageInArabic = "لا يوجد مشرف مسجل";
+                $error->statusCode = 404;
+                throw $error;
+            }
+
+
+            return response()->json([
+                "moderator" => $moderator,
+                "statusCode" => 200,
+            ], 200);
+            
+
+        }catch(Error $err){
+            return response()->json([
+                "message" => $err->errorMessage,
+                "messageInArabic" => $err->messageInArabic,
+                "statusCode" => $err->statusCode
+            ], $err->statusCode);
+            
+        }
     }
 
     /**
@@ -162,13 +223,16 @@ class ModeratorController extends Controller
                 $error->errorMessage = "There is no Moderator with this id";
                 $error->messageInArabic = "لا يوجد مشرف مسجل";
                 $error->statusCode = 404;
+                $error->xx = $moderatorId;
                 throw $error;
             }
 
             $rules = [
                 "nameInArabic" => "required|string|min:2|max:30|regex:/^[؀-ۿ\s]+$/",
                 "name" => "required|string|min:2|max:30|regex:/^[A-Za-z\s]+$/",
-                "phone"  => "required|string|min:10|max:13|regex:/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/"
+                "password" => "required|string|min:7|max:20|regex:/^[A-Za-z\s].+$/",
+                "phone"  => "required|string|min:10|max:13|regex:/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/",
+                "email" => "required|email",
             ];
     
         
@@ -186,9 +250,12 @@ class ModeratorController extends Controller
             
 
            
-            $moderator = Moderator::where("ModeratorId", $moderatorId)->update([
+            $moderator = Moderator::where("moderatorId", $moderatorId)->update([
                 "nameInArabic" => $request->input("nameInArabic"),
                 "name" => $request->input("name"),
+                "password" => Hash::make($request->input("password")),
+                "phone" => $request->input("phone"),
+                "email" => $request->input("email")
             ]);
 
         
@@ -210,7 +277,7 @@ class ModeratorController extends Controller
                 "message" => "Moderator has been updated successfully",
                 "messageInArabic" => "تم تحديث المشرف بنجاح",
                 "statusCode" => 200,
-            ]);
+            ],200);
             
 
         }catch(Error $err){
@@ -218,10 +285,10 @@ class ModeratorController extends Controller
                 "message" => $err->errorMessage,
                 "messageInArabic" => $err->messageInArabic,
                 "statusCode" => $err->statusCode
-            ]);
+            ], $err->statusCode);
             
     }
-}
+    }
 
 
     /**
@@ -230,10 +297,65 @@ class ModeratorController extends Controller
      * @param  \App\Models\Moderator  $moderator
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Moderator $moderator)
+    public function destroy(Request $request)
     {
-        //
-    }
+        try{
+  
+            /**
+             * Here we check the coming moderator id wheter a number or not.
+             * If a number we will store it in the $moderatorId variable.
+             * If not a number we will assign the variable to zero
+             */
+              $moderatorId = intval($request->input("moderatorId")) ? $request->input("clientId") : 0;
+              /**
+               * System will call the brand with the coming id
+               */
+              
+              $moderator = Moderator::where("moderatorId", $moderatorId)->first();
+  
+              /**
+               * System checks the moderator if exists or not.
+               * If no moderator is found in the moderator table, system will return an error
+               */
+              if($moderator == null){
+                  $error = new Error(null);
+                  $error->errorMessage = "There is no moderator with this id";
+                  $error->messageInArabic = "لا يوجد مشرف مسجل";
+                  $error->statusCode = 404;
+                  throw $error;
+              }
+             
+              $moderator = Client::where("clientId", $moderatorId)->delete();
+              
+
+            /**
+             * Here we check if the moderator deleted or not.
+             * If not deleted successfully. The system returns an error message.
+             */
+            if($moderator == 0 ){
+                $error = new Error(null);
+                $error->errorMessage = "There is something wrong happened";
+                $error->messageInArabic = "حصل خطأ";
+                $error->statusCode = 500;
+                throw $error;
+            }
+
+            return response()->json([
+                "message" => "moderator has been deleted successfully",
+                "messageInArabic" => "تم حذف المشرف بنجاح",
+                "statusCode" => 200,
+            ], 200);
+            
+
+        }catch(Error $err){
+            return response()->json([
+                "message" => $err->errorMessage,
+                "messageInArabic" => $err->messageInArabic,
+                "statusCode" => $err->statusCode
+            ], $err->statusCode);
+            
+        }
+    }  
 
 
     public function updateClient(Request $request){
@@ -316,7 +438,7 @@ class ModeratorController extends Controller
                 "message" => "Client has been updated successfully",
                 "messageInArabic" => "تم تحديث العميل بنجاح",
                 "statusCode" => 200,
-            ]);
+            ],200);
             
 
         }catch(Error $err){
@@ -324,7 +446,7 @@ class ModeratorController extends Controller
                 "message" => $err->errorMessage,
                 "messageInArabic" => $err->messageInArabic,
                 "statusCode" => $err->statusCode
-            ]);
+            ], $err->statusCode);
             
         }
     }
@@ -419,8 +541,8 @@ class ModeratorController extends Controller
              return response()->json([
                  "message" => "Supplier has successfully updated",
                  "messageInArabic" => "تم تحديث الموّرد بنجاح",
-                 "statusCode" => 201,
-             ],201);
+                 "statusCode" => 200,
+             ],200);
              
  
          }catch(Error $err){

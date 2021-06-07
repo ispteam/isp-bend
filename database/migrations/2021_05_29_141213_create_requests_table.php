@@ -21,7 +21,7 @@ class CreateRequestsTable extends Migration
             $table->string("field");
             $table->string("quantity");
             $table->string("amounts")->nullable();
-            $table->string("finalAmount");
+            $table->string("finalAmount")->default("0");
             $table->unsignedBigInteger("clientId");
             $table->unsignedBigInteger("modelId");
             $table->unsignedBigInteger("supplierId")->nullable();
