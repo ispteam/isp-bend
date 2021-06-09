@@ -12,7 +12,7 @@ class Client extends Model
     protected $table="clients";
     protected $primarykey= "clientId";
     protected $fillable = ["name", "password", "email", "nameInArabic", "phone", "address"];
-    protected $hidden= ["password"];
+    protected $hidden= ["password", "laravel_through_key"];
 
     public function requests(){
         return $this->hasMany(

@@ -407,7 +407,7 @@ class ModeratorController extends Controller
             }
 
             
-            $sanitizedAddress= ValidationError::sanitizeAddress($request->input("address"));
+            $sanitizedAddress= ValidationError::sanitizeArray($request->input("address"));
 
             
             $client = Client::where("clientId", $clientId)->update([

@@ -18,7 +18,7 @@ class BrandController extends Controller
     public function index()
     {
         try{
-            $brands= Brand::with("models")->get();
+            $brands= Brand::all()->toArray();
             if(count($brands) < 1){
                 $error= new Error(null);
                 $error->message = "No brand is found";
@@ -102,7 +102,7 @@ class BrandController extends Controller
                  */
 
         
-            if(count(array($brand))== 0 ){
+            if($brand == null ){
                 $error = new Error(null);
                 $error->errorMessage = "There is something wrong happened";
                 $error->messageInArabic = "حصل خطأ";

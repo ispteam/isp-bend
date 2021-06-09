@@ -10,7 +10,7 @@ class ValidationError{
         return $validator;
     }
 
-    public static function sanitizeAddress($address){
+    public static function sanitizeArray($address){
         $sanitizedAddress = filter_var_array($address, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_HIGH);
         return $sanitizedAddress;
     }

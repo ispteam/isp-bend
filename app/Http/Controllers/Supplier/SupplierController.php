@@ -8,6 +8,7 @@ use Error;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Hash;
+use App\Models\RRequest\Request as Rrequest;
 
 class SupplierController extends Controller
 {
@@ -18,7 +19,26 @@ class SupplierController extends Controller
      */
     public function index()
     {
-       
+       try{
+            $suppliers = Supplier::all()->toArray();
+            if(count($suppliers) < 1){
+                $error = new Error(null);
+                $error->errorMessage = "There is no suppliers found";
+                $error->messageInArabic = "لم يتم ايجاد موردين";
+                $error->statusCode = 404;
+                throw $error;
+            }
+            return response()->json([
+                "suppliers" => $suppliers,
+                "statusCode" => 200
+            ], 200);
+       }catch(Error $err){
+            return response()->json([
+                "message" => $err->message,
+                "messageInArabic" => $err->messageInArabic,
+                "statusCode" => $err->statusCode
+            ], $err->statusCode);
+       }
     }
 
     /**
@@ -96,7 +116,7 @@ class SupplierController extends Controller
              * Here we check if there a supplier inserted or not.
              * If not inserted successfully. The system returns an error message.
              */
-            if(count(array($supplier))== 0 ){
+            if($supplier == null ){
                 $error = new Error(null);
                 $error->errorMessage = "There is something wrong happened";
                 $error->messageInArabic = "حصل خطأ";
@@ -130,9 +150,31 @@ class SupplierController extends Controller
      * @param  \App\Models\Supplier  $supplier
      * @return \Illuminate\Http\Response
      */
-    public function show(Supplier $supplier)
+    public function show(Request $request)
     {
-        //
+        try{
+
+            $supplierId =   $supplierId = intval($request->input("supplierId")) ? $request->input("supplierId") : 0;
+
+            $supplier = Supplier::where("supplierId", $supplierId)->first();
+            if($supplier == null ){
+                $error = new Error(null);
+                $error->errorMessage = "There is no supplier found";
+                $error->messageInArabic = "لم يتم ايجاد مورد";
+                $error->statusCode = 404;
+                throw $error;
+            }
+            return response()->json([
+                "suppliers" => $supplier,
+                "statusCode" => 200
+            ], 200);
+       }catch(Error $err){
+            return response()->json([
+                "message" => $err->message,
+                "messageInArabic" => $err->messageInArabic,
+                "statusCode" => $err->statusCode
+            ], $err->statusCode);
+       }
     }
 
     /**
@@ -251,8 +293,99 @@ class SupplierController extends Controller
      * @param  \App\Models\Supplier  $supplier
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Supplier $supplier)
+    public function destroy(Request $request)
     {
-        //
+        try{
+
+            $supplierId =   $supplierId = intval($request->input("supplierId")) ? $request->input("supplierId") : 0;
+
+            $supplier = Supplier::where("supplierId", $supplierId)->first();
+            if($supplier == null ){
+                $error = new Error(null);
+                $error->errorMessage = "There is something wrong happened";
+                $error->messageInArabic = "لم يتم ايجاد مورد";
+                $error->statusCode = 404;
+                throw $error;
+            }
+            $supplier = Supplier::where("supplierId", $supplierId)->delete();
+
+            if($supplier == 0){
+                $error = new Error(null);
+                $error->errorMessage = "There is no supplier found";
+                $error->messageInArabic = "حصل خطأ";
+                $error->statusCode = 404;
+                throw $error;
+            }
+
+            return response()->json([
+                "suppliers" => $supplier,
+                "statusCode" => 200
+            ], 200);
+       }catch(Error $err){
+            return response()->json([
+                "message" => $err->message,
+                "messageInArabic" => $err->messageInArabic,
+                "statusCode" => $err->statusCode
+            ], $err->statusCode);
+       }
+    }
+
+    public function allRequests(Request $request)
+    {
+        try{
+  
+            /**
+             * Here we check the coming client id wheter a number or not.
+             * If a number we will store it in the client$supplierId variable.
+             * If not a number we will assign the variable to zero
+             */
+              $supplierId = intval($request->input("supplierId")) ? $request->input("supplierId") : 0;
+              /**
+               * System will call the brand with the coming id
+               */
+              
+              if($supplierId == 0 ){
+                $error = new Error(null);
+                $error->errorMessage ="Invalid id for supplier";
+                $error->messageInArabic = "معرّف خاطئ للموّرد";
+                $error->statusCode = 422;
+                throw $error;
+            }
+
+                /**
+               * System will call the brand with the coming id
+               * The single request will carry the model as well, becasue clients want to see the models information
+               */
+
+              $selectedRequests = Rrequest::with(["clients:clients.name,clients.nameInArabic,clients.email,clients.address,clients.phone", "brands:brands.brandName,brands.brandNameInArabic"])->where("supplierId", $supplierId)->get();
+  
+              /**
+               * System checks the client if exists or not.
+               * If no client is found in the client table, system will return an error
+               */
+              if(count($selectedRequests) < 1){
+                  $error = new Error(null);
+                  $error->errorMessage = "There is no requests related to this client";
+                  $error->messageInArabic = "لا يوجد طلبات مسجلة لهذا العميل";
+                  $error->statusCode = 404;
+                  throw $error;
+              }
+             
+             
+
+            return response()->json([
+                "requests" => $selectedRequests,
+                "statusCode" => 200,
+            ], 200);
+            
+
+        }catch(Error $err){
+            return response()->json([
+                "message" => $err->errorMessage,
+                "messageInArabic" => $err->messageInArabic,
+                "statusCode" => $err->statusCode
+            ], $err->statusCode);
+            
+        }
     }
 }

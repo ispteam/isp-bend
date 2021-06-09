@@ -109,7 +109,7 @@ class ClientController extends Controller
              * The answer is: because the address field is an object which contains multiple fields inside of it. Regex will not go inside the object and check whether some fileds matche the pattern or not. 
              */
 
-            $sanitizedAddress= ValidationError::sanitizeAddress($request->input("address"));
+            $sanitizedAddress= ValidationError::sanitizeArray($request->input("address"));
 
 
             /**
@@ -131,7 +131,7 @@ class ClientController extends Controller
              * Here we check if there a client inserted or not.
              * If not inserted successfully. The system returns an error message.
              */
-            if($client == 0 ){
+            if($client == null ){
                 $error = new Error(null);
                 $error->errorMessage = "There is something wrong happened";
                 $error->messageInArabic = "حصل خطأ";
@@ -269,7 +269,7 @@ class ClientController extends Controller
             }
 
             
-            $sanitizedAddress= ValidationError::sanitizeAddress($request->input("address"));
+            $sanitizedAddress= ValidationError::sanitizeArray($request->input("address"));
 
            
             $client = Client::where("clientId", $clientId)->update([
@@ -406,7 +406,7 @@ class ClientController extends Controller
                * The single request will carry the model as well, becasue clients want to see the models information
                */
 
-              $selectedRequests = Rrequest::with("models")->where("clientId", $clientId)->get();
+              $selectedRequests = Rrequest::with("brands:brands.brandName,brands.brandNameInArabic")->where("clientId", $clientId)->get();
   
               /**
                * System checks the client if exists or not.
@@ -463,7 +463,7 @@ class ClientController extends Controller
                * The single request will carry the model as well, becasue clients want to see the models information
                */
               
-              $selectedRequest = Rrequest::with("models")->where("clientId", $clientId)->where("requestId", $requestId)->first();
+              $selectedRequest = Rrequest::where("clientId", $clientId)->where("requestId", $requestId)->first();
   
               /**
                * System checks the client if exists or not.

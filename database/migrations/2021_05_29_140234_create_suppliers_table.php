@@ -20,6 +20,7 @@ class CreateSuppliersTable extends Migration
             $table->string("nameInArabic");
             $table->string("companyInEnglish");
             $table->string("companyInArabic");
+            $table->string("companyCertificate")->nullable();
             $table->string("email");
             $table->string("verified")->default("0"); // It is a way to ensure the supplier's account whether verified or not example 0: Not verified, 1:Verified, 2:Suspended
             $table->string("phone");

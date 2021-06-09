@@ -12,13 +12,7 @@ class Brand extends Model
     protected $table = "brands";
     protected $primarykey = "brandId";
     protected $fillable = ["brandName","brandNameInArabic"];
+    protected $hidden = ["laravel_through_key"];
 
-    public function models(){
-        return $this->hasMany(
-            MModel::class,
-            "brandId",
-            "brandId"
-        );
-    }
-
+    
 }
