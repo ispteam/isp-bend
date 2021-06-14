@@ -14,13 +14,9 @@ class CreateModeratorsTable extends Migration
     public function up()
     {
         Schema::create('moderators', function (Blueprint $table) {
-            $table->bigIncrements("moderatorId");
-            $table->string("password");
-            $table->string("name");
-            $table->string("nameInArabic");
-            $table->string("email");
-            $table->string("phone");
-            $table->timestamps();
+            $table->unsignedBigInteger("moderatorId");
+            $table->foreign("moderatorId")->references("uid")->on("users_info")->onDelete("CASCADE")->onUpdate("CASCADE");
+            $table->string("enterId")->unique();
         });
     }
 

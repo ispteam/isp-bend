@@ -141,12 +141,12 @@ class RequestController extends Controller
              *   }
              * ]
              */
-            $supplier =  Supplier::where("supplierId", $supplierId)->get(["supplierId","name", "nameInArabic"])->first();
-            array_push($amounts, ["amount" => $newAmount, "supplierInfo" => $supplier ]);
+            $supplier =  Supplier::with("accounts")->where("supplierId", $supplierId)->get(["supplierId"])->first();
+            array_push($amounts, ["amount" => $newAmount, "supplierId" => $supplier->supplierId ,"name" => $supplier->accounts->name, "nameInArabic" => $supplier->accounts->nameInArabic ]);
 
             
 
-            //we just update the amounts json array that holds the amount and the supplier name
+            // //we just update the amounts json array that holds the amount and the supplier name
             $request = Rrequest::where("requestId", $requestId)->update([
                 "amounts" => json_encode($amounts),
             ]);

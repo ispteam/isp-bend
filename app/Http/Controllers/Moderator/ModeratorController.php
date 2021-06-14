@@ -5,6 +5,7 @@ use App\Http\Validation\ValidationError;
 use App\Models\Client\Client;
 use App\Models\Moderator\Moderator;
 use App\Models\Supplier\Supplier;
+use App\Models\User\User;
 use Error;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
@@ -72,8 +73,9 @@ class ModeratorController extends Controller
                 "nameInArabic" => "required|string|min:2|max:30|regex:/^[؀-ۿ\s]+$/",
                 "name" => "required|string|min:2|max:30|regex:/^[A-Za-z\s]+$/",
                 "password" => "required|string|min:7|max:20|regex:/^[A-Za-z\s].+$/",
-                "email" =>"required|email|unique:moderators,email",
-                "phone"  => "required|string|min:10|max:13|unique:moderators,phone|regex:/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/"
+                "email" =>"required|email|unique:users_info,email",
+                "userType" => "required|numeric|max:1",
+                "phone"  => "required|string|min:10|max:13|unique:users_info,phone|regex:/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/"
             ];
     
             /**
@@ -99,12 +101,27 @@ class ModeratorController extends Controller
              * Here We create a new Moderator if all user inputs passed the validation.
              * We hash the password to encrypt it from stealing.
              */
-            $moderator = Moderator::create([
+            $moderatorAccount = User::create([
                 "nameInArabic" => $request->input("nameInArabic"),
                 "name" => $request->input("name"),
                 "password" => Hash::make($request->input("password")),
                 "email"=> $request->input("email"),
-                "phone" => $request->input("phone")
+                "phone" => $request->input("phone"),
+                "userType" => $request->input("userType"),
+            ]);
+
+            if($moderatorAccount == null ){
+                $error = new Error(null);
+                $error->errorMessage = "There is something wrong happened";
+                $error->messageInArabic = "حصل خطأ";
+                $error->statusCode = 500;
+                throw $error;
+            }
+
+
+            $moderator = Moderator::create([
+                "moderatorId" => $moderatorAccount->id,
+                "enterId" => uniqid($request->input("name")[0].$request->input("name")[1]."-", true),
             ]);
 
 
@@ -112,7 +129,7 @@ class ModeratorController extends Controller
              * Here we check if there a Moderator inserted or not.
              * If not inserted successfully. The system returns an error message.
              */
-            if($moderator == 0 ){
+            if($moderator == null ){
                 $error = new Error(null);
                 $error->errorMessage = "There is something wrong happened";
                 $error->messageInArabic = "حصل خطأ";
@@ -159,7 +176,7 @@ class ModeratorController extends Controller
             /**
              * System will call the client with the coming id
              */
-            $moderator = moderator::where("moderatorId", $moderatorId)->first();
+            $moderator = Moderator::with("account")->where("moderatorId", $moderatorId)->first();
 
             /**
              * System checks the moderator if exists or not.
@@ -212,13 +229,9 @@ class ModeratorController extends Controller
             /**
              * System will call the Moderator with the coming id
              */
-            $moderator = Moderator::where("moderatorId", $moderatorId)->first();
+            $moderatorAccount = User::where("uid", $moderatorId)->first();
 
-            /**
-             * System checks the Moderator if exists or not.
-             * If no Moderator is found in the Moderators table, system will return an error
-             */
-            if($moderator == null){
+            if($moderatorAccount == null){
                 $error = new Error(null);
                 $error->errorMessage = "There is no Moderator with this id";
                 $error->messageInArabic = "لا يوجد مشرف مسجل";
@@ -226,6 +239,7 @@ class ModeratorController extends Controller
                 $error->xx = $moderatorId;
                 throw $error;
             }
+
 
             $rules = [
                 "nameInArabic" => "required|string|min:2|max:30|regex:/^[؀-ۿ\s]+$/",
@@ -250,7 +264,7 @@ class ModeratorController extends Controller
             
 
            
-            $moderator = Moderator::where("moderatorId", $moderatorId)->update([
+            $moderatorAccount = User::where("uid", $moderatorId)->update([
                 "nameInArabic" => $request->input("nameInArabic"),
                 "name" => $request->input("name"),
                 "password" => Hash::make($request->input("password")),
@@ -260,18 +274,6 @@ class ModeratorController extends Controller
 
         
 
-
-            /**
-             * Here we check if the Moderator updated or not.
-             * If not updated successfully. The system returns an error message.
-             */
-            if($moderator == 0 ){
-                $error = new Error(null);
-                $error->errorMessage = "There is something wrong happened";
-                $error->messageInArabic = "حصل خطأ";
-                $error->statusCode = 500;
-                throw $error;
-            }
 
             return response()->json([
                 "message" => "Moderator has been updated successfully",
@@ -311,28 +313,28 @@ class ModeratorController extends Controller
                * System will call the brand with the coming id
                */
               
-              $moderator = Moderator::where("moderatorId", $moderatorId)->first();
-  
-              /**
-               * System checks the moderator if exists or not.
-               * If no moderator is found in the moderator table, system will return an error
-               */
-              if($moderator == null){
-                  $error = new Error(null);
-                  $error->errorMessage = "There is no moderator with this id";
-                  $error->messageInArabic = "لا يوجد مشرف مسجل";
-                  $error->statusCode = 404;
-                  throw $error;
-              }
-             
-              $moderator = Client::where("clientId", $moderatorId)->delete();
-              
-
+              $moderatorAccount = User::where("uid", $moderatorId)->first();
+            
             /**
-             * Here we check if the moderator deleted or not.
-             * If not deleted successfully. The system returns an error message.
+             * System checks the client if exists or not.
+             * If no client is found in the clients table, system will return an error
              */
-            if($moderator == 0 ){
+            if($moderatorAccount== null){
+                $error = new Error(null);
+                $error->errorMessage = "There is no client with this id";
+                $error->messageInArabic = "لا يوجد عميل مسجل";
+                $error->statusCode = 404;
+                throw $error;
+            }
+             
+              $moderatorAccount = User::where("uid", $moderatorId)->delete();
+
+                /**
+               * Here we check if the client deleted or not.
+               * If not deleted successfully. The system returns an error message.
+               */
+
+              if($moderatorAccount == 0 ){
                 $error = new Error(null);
                 $error->errorMessage = "There is something wrong happened";
                 $error->messageInArabic = "حصل خطأ";
@@ -340,8 +342,12 @@ class ModeratorController extends Controller
                 throw $error;
             }
 
+
+              $moderator = Moderator::where("moderatorId", $moderatorId)->delete();
+              
+
             return response()->json([
-                "message" => "moderator has been deleted successfully",
+                "message" => "Moderator has been deleted successfully",
                 "messageInArabic" => "تم حذف المشرف بنجاح",
                 "statusCode" => 200,
             ], 200);
@@ -554,5 +560,180 @@ class ModeratorController extends Controller
              
          }
     }
+
+
+    
+    public function acceptSupplier(Request $request)
+    {
+        try{
+
+            //System checks the supplier id
+            $supplierId = intval($request->input("supplierId")) ? $request->input("supplierId") : 0;
+
+             //If supplier id not a number then system will return an error
+            if($supplierId == 0){
+                $error = new Error(null);
+                $error->errorMessage ="Invalid id for supplier";
+                $error->messageInArabic = "معرّف خاطئ للمورّد";
+                $error->statusCode = 422;
+                throw $error;
+            }
+
+            //Fetch the supplier data
+            $supplier= Supplier::where("supplierId", $supplierId)->first();
+
+            //If there is no supplier found in the database system will return an error
+            if($supplier == null) {
+                $error = new Error(null);
+                $error->errorMessage = "There is no supplier with this id";
+                $error->messageInArabic = "لا يوجد عميل مسجل";
+                $error->statusCode = 404;
+                throw $error;
+            }
+
+            //Accept the supplier by changing verified value to 1
+            $supplier = Supplier::where("supplierId", $supplierId)->update([
+                "verified" => "1"
+            ]);
+
+            //If there is no record updated system will display an error 
+            if($supplier == 0){
+                $error = new Error(null);
+                $error->errorMessage = "There is something wrong happened";
+                $error->messageInArabic = "حصل خطأ";
+                $error->statusCode = 500;
+                throw $error;
+            }
+
+            return response()->json([
+                "message" => "supplier's account has been updated",
+                "messageInArabic" => "تم تفعيل حساب المورّد",
+                "statusCode" => 200
+            ], 200);
+
+        }catch(Error $err){
+            return response()->json([
+                "message" => $err->errorMessage,
+                "messageInArabic" => $err->messageInArabic,
+                "statusCode" => $err->statusCode
+            ], $err->statusCode);
+        }
+    }
+
+    public function suspendSupplier(Request $request)
+    {
+        try{
+
+            //System checks the supplier id
+            $supplierId = intval($request->input("supplierId")) ? $request->input("supplierId") : 0;
+
+            //If supplier id not a number then system will return an error
+            if($supplierId == 0){
+                $error = new Error(null);
+                $error->errorMessage ="Invalid id for supplier";
+                $error->messageInArabic = "معرّف خاطئ للمورّد";
+                $error->statusCode = 422;
+                throw $error;
+            }
+
+            //Fetch the supplier data
+            $supplier= Supplier::where("supplierId", $supplierId)->first();
+
+            //If there is no supplier found in the database system will return an error
+            if($supplier == null) {
+                $error = new Error(null);
+                $error->errorMessage = "There is no supplier with this id";
+                $error->messageInArabic = "لا يوجد عميل مسجل";
+                $error->statusCode = 404;
+                throw $error;
+            }
+
+            //Suspend the supplier by changing verified value to 2
+            $supplier = Supplier::where("supplierId", $supplierId)->update([
+                "verified" => "2"
+            ]);
+
+            //If there is no record updated system will display an error
+            if($supplier == 0){
+                $error = new Error(null);
+                $error->errorMessage = "There is something wrong happened";
+                $error->messageInArabic = "حصل خطأ";
+                $error->statusCode = 500;
+                throw $error;
+            }
+
+            return response()->json([
+                "message" => "supplier's account has been suspended",
+                "messageInArabic" => "تم تجميد حساب المورّد",
+                "statusCode" => 200
+            ], 200);
+
+        }catch(Error $err){
+            return response()->json([
+                "message" => $err->errorMessage,
+                "messageInArabic" => $err->messageInArabic,
+                "statusCode" => $err->statusCode
+            ], $err->statusCode);
+        }
+    }
+
+    
+    public function cancelSupplier(Request $request)
+    {
+        try{
+
+            //System checks the supplier id
+            $supplierId = intval($request->input("supplierId")) ? $request->input("supplierId") : 0;
+
+             //If supplier id not a number then system will return an error
+            if($supplierId == 0){
+                $error = new Error(null);
+                $error->errorMessage ="Invalid id for supplier";
+                $error->messageInArabic = "معرّف خاطئ للمورّد";
+                $error->statusCode = 422;
+                throw $error;
+            }
+
+            //Fetch the supplier data
+            $supplier= Supplier::where("supplierId", $supplierId)->first();
+
+            //If there is no supplier found in the database system will return an error
+            if($supplier == null) {
+                $error = new Error(null);
+                $error->errorMessage = "There is no supplier with this id";
+                $error->messageInArabic = "لا يوجد عميل مسجل";
+                $error->statusCode = 404;
+                throw $error;
+            }
+
+            //Cancel the supplier by changing verified value to 3
+            $supplier = Supplier::where("supplierId", $supplierId)->update([
+                "verified" => "3"
+            ]);
+
+            //If there is no record updated system will display an error
+            if($supplier == 0){
+                $error = new Error(null);
+                $error->errorMessage = "There is something wrong happened";
+                $error->messageInArabic = "حصل خطأ";
+                $error->statusCode = 500;
+                throw $error;
+            }
+
+            return response()->json([
+                "message" => "supplier's account has been canceled",
+                "messageInArabic" => "تم الغاء حساب المورّد",
+                "statusCode" => 200
+            ], 200);
+
+        }catch(Error $err){
+            return response()->json([
+                "message" => $err->errorMessage,
+                "messageInArabic" => $err->messageInArabic,
+                "statusCode" => $err->statusCode
+            ], $err->statusCode);
+        }
+    }
+    
 
 }

@@ -14,13 +14,9 @@ class CreateClientsTable extends Migration
     public function up()
     {
         Schema::create('clients', function (Blueprint $table) {
-            $table->bigIncrements("clientId");
-            $table->string("password");
-            $table->string("name");
-            $table->string("nameInArabic");
-            $table->string("email");
+            $table->unsignedBigInteger("clientId");
             $table->json("address"); //Why the format is json? because the address holds many fields such as city, country, zip code, etc...
-            $table->string("phone");
+            $table->foreign("clientId")->references("uid")->on("users_info")->onDelete("CASCADE")->onUpdate("CASCADE");
             $table->timestamps();
         });
     }

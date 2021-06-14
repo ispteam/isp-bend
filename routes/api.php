@@ -26,12 +26,6 @@ use Illuminate\Support\Facades\Route;
 /** NOTE MIDDLEWARE FOR AUTH SHOULD BE ADDED INSIDE THE CONTROLLER*/
 Route::prefix('admin')->group(function () {
     Route::apiResource('/admin-operations', AdminController::class);
-    //To accept a new supplier
-    Route::patch("/accept-supplier", [AdminController::class, 'acceptSupplier']);
-    //To suspend a supplier
-    Route::patch("/suspend-supplier", [AdminController::class, 'suspendSupplier']);
-    //To cancel a supplier
-    Route::patch("/cancel-supplier", [AdminController::class, 'cancelSupplier']);
 });
 
 
@@ -51,6 +45,13 @@ Route::prefix('moderator')->group(function () {
     Route::patch("/update-client", [ModeratorController::class, 'updateClient']);
     //To update a supplier
     Route::patch("/update-supplier", [ModeratorController::class, 'updateSupplier']);
+    
+    //To accept a new supplier
+    Route::patch("/accept-supplier", [ModeratorController::class, 'acceptSupplier']);
+    //To suspend a supplier
+    Route::patch("/suspend-supplier", [ModeratorController::class, 'suspendSupplier']);
+    //To cancel a supplier
+    Route::patch("/cancel-supplier", [ModeratorController::class, 'cancelSupplier']);
     
 });
 

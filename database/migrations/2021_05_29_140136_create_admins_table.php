@@ -14,13 +14,9 @@ class CreateAdminsTable extends Migration
     public function up()
     {
         Schema::create('admins', function (Blueprint $table) {
-            $table->bigIncrements("adminId");
-            $table->string("password");
-            $table->string("name");
-            $table->string("nameInArabic");
-            $table->string("email");
+            $table->unsignedBigInteger("adminId");
             $table->string("enterId")->unique();
-            $table->string("phone");
+            $table->foreign("adminId")->references("uid")->on("users_info")->onDelete("CASCADE")->onUpdate("CASCADE");
             $table->timestamps();
         });
     }

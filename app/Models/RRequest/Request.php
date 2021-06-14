@@ -6,6 +6,7 @@ use App\Models\Brand\Brand;
 use App\Models\Client\Client;
 use App\Models\Model\MModel;
 use App\Models\Supplier\Supplier;
+use App\Models\User\User;
 use ClientsModelsBridge;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -21,10 +22,10 @@ class Request extends Model
 
     public function clients(){
         return $this->hasManyThrough(
-            Client::class,
+            User::class,
             Request::class,
             "requestId",
-            "clientId",
+            "uid",
             "requestId",
             "clientId"
         );
@@ -40,5 +41,6 @@ class Request extends Model
             "brandId"
         );
     }
+
 
 }

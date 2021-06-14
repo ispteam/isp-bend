@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Validation\ValidationError;
 use App\Models\Admin\Admin;
 use App\Models\Supplier\Supplier;
+use App\Models\User\User;
 use Error;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
@@ -34,12 +35,12 @@ class AdminController extends Controller
                 "nameInArabic" => "required|string|min:2|max:30|regex:/^[؀-ۿ\s]+$/",
                 "name" => "required|string|min:2|max:30|regex:/^[A-Za-z\s]+$/",
                 "password" => "required|string|min:7|max:20|regex:/^[A-Za-z\s].+$/",
-                "email" =>"required|email|unique:admins,email",
-                "phone"  => "required|string|min:10|max:13|unique:admins,phone|regex:/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/",
+                "email" =>"required|email|unique:users_info,email",
+                "userType" => "required|numeric|max:1",
+                "phone"  => "required|string|min:10|max:13|unique:users_info,phone|regex:/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/",
             ];
 
             $validator= ValidationError::validationUserInput($request, $rules);
-
             
             /**
              * Here we will check if some of the fields are failed, so the system will return a validation error of the specific field.
@@ -57,13 +58,18 @@ class AdminController extends Controller
              * The answer is: because the address field is an object which contains multiple fields inside of it. Regex will not go inside the object and check whether some fileds matche the pattern or not. 
              */
 
-            $admin = Admin::create([
+            $adminUser = User::create([
                 "nameInArabic" => $request->input("nameInArabic"),
                 "name" => $request->input("name"),
                 "password" => Hash::make($request->input("password")),
                 "email"=> $request->input("email"),
-                "enterId" => uniqid($request->input("name")[0].$request->input("name")[1]."-", true),
+                "userType" => $request->input("userType"),
                 "phone" => $request->input("phone")
+            ]);
+
+            $admin = Admin::create([
+                "adminId" => $adminUser->id,
+                "enterId" => uniqid($request->input("name")[0].$request->input("name")[1]."-", true),
             ]);
 
 
@@ -71,7 +77,7 @@ class AdminController extends Controller
              * Here we check if there a admin inserted or not.
              * If not inserted successfully. The system returns an error message.
              */
-            if(count(array($admin))== 0 ){
+            if($admin == null || $adminUser == null ){
                 $error = new Error(null);
                 $error->errorMessage = "There is something wrong happened";
                 $error->messageInArabic = "حصل خطأ";
@@ -119,7 +125,7 @@ class AdminController extends Controller
                * System will call the admin with the coming id
                */
               
-              $admin = Admin::where("adminId", $adminId)->first();
+              $admin = Admin::with("account")->where("adminId", $adminId)->first();
   
               /**
                * System checks the admin if exists or not.
@@ -165,7 +171,7 @@ class AdminController extends Controller
             $adminId = intval($request->input("adminId")) ? $request->input("adminId") : 0;
 
           
-            $admin = Admin::where("adminId", $adminId)->first();
+            $admin = User::where("uid", $adminId)->first();
 
             
             if($admin == null){
@@ -179,8 +185,8 @@ class AdminController extends Controller
                "nameInArabic" => "required|string|min:2|max:30|regex:/^[؀-ۿ\s]+$/",
                "name" => "required|string|min:2|max:30|regex:/^[A-Za-z\s]+$/",
                "password" => "required|string|min:7|max:20|regex:/^[A-Za-z\s].+$/",
-               "email" =>"required|email|unique:admins,email",
-               "phone"  => "required|string|min:10|max:13|egex:/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/",
+               "email" =>"required|email|unique:users_info,email",
+               "phone"  => "required|string|min:10|max:13|regex:/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/",
            ];
 
            $validator= ValidationError::validationUserInput($request, $rules);
@@ -197,23 +203,7 @@ class AdminController extends Controller
                throw $error;
            }
 
-           $admin = Admin::where("adminId", $adminId)->first();
-
-
-           /**
-               * System checks the admin if exists or not.
-               * If no admin is found in the admin table, system will return an error
-               */
-              if($admin == null){
-                $error = new Error(null);
-                $error->errorMessage = "There is no admin with this id";
-                $error->messageInArabic = "لا يوجد علامة مدير مسجل";
-                $error->statusCode = 404;
-                throw $error;
-            }
-         
-
-           $admin = Admin::where("adminId", $adminId)->update([
+           $admin = User::where("uid", $adminId)->update([
                "nameInArabic" => $request->input("nameInArabic"),
                "name" => $request->input("name"),
                "email"=> $request->input("email"),
@@ -254,173 +244,4 @@ class AdminController extends Controller
        }
     }
 
-    public function acceptSupplier(Request $request)
-    {
-        try{
-
-            //System checks the supplier id
-            $supplierId = intval($request->input("supplierId")) ? $request->input("supplierId") : 0;
-
-             //If supplier id not a number then system will return an error
-            if($supplierId == 0){
-                $error = new Error(null);
-                $error->errorMessage ="Invalid id for supplier";
-                $error->messageInArabic = "معرّف خاطئ للمورّد";
-                $error->statusCode = 422;
-                throw $error;
-            }
-
-            //Fetch the supplier data
-            $supplier= Supplier::where("supplierId", $supplierId)->first();
-
-            //If there is no supplier found in the database system will return an error
-            if($supplier == null) {
-                $error = new Error(null);
-                $error->errorMessage = "There is no supplier with this id";
-                $error->messageInArabic = "لا يوجد عميل مسجل";
-                $error->statusCode = 404;
-                throw $error;
-            }
-
-            //Accept the supplier by changing verified value to 1
-            $supplier = Supplier::where("supplierId", $supplierId)->update([
-                "verified" => "1"
-            ]);
-
-            //If there is no record updated system will display an error 
-            if($supplier == 0){
-                $error = new Error(null);
-                $error->errorMessage = "There is something wrong happened";
-                $error->messageInArabic = "حصل خطأ";
-                $error->statusCode = 500;
-                throw $error;
-            }
-
-            return response()->json([
-                "message" => "supplier's account has been updated",
-                "messageInArabic" => "تم تفعيل حساب المورّد",
-                "statusCode" => 200
-            ], 200);
-
-        }catch(Error $err){
-            return response()->json([
-                "message" => $err->errorMessage,
-                "messageInArabic" => $err->messageInArabic,
-                "statusCode" => $err->statusCode
-            ], $err->statusCode);
-        }
-    }
-
-    public function suspendSupplier(Request $request)
-    {
-        try{
-
-            //System checks the supplier id
-            $supplierId = intval($request->input("supplierId")) ? $request->input("supplierId") : 0;
-
-            //If supplier id not a number then system will return an error
-            if($supplierId == 0){
-                $error = new Error(null);
-                $error->errorMessage ="Invalid id for supplier";
-                $error->messageInArabic = "معرّف خاطئ للمورّد";
-                $error->statusCode = 422;
-                throw $error;
-            }
-
-            //Fetch the supplier data
-            $supplier= Supplier::where("supplierId", $supplierId)->first();
-
-            //If there is no supplier found in the database system will return an error
-            if($supplier == null) {
-                $error = new Error(null);
-                $error->errorMessage = "There is no supplier with this id";
-                $error->messageInArabic = "لا يوجد عميل مسجل";
-                $error->statusCode = 404;
-                throw $error;
-            }
-
-            //Suspend the supplier by changing verified value to 2
-            $supplier = Supplier::where("supplierId", $supplierId)->update([
-                "verified" => "2"
-            ]);
-
-            //If there is no record updated system will display an error
-            if($supplier == 0){
-                $error = new Error(null);
-                $error->errorMessage = "There is something wrong happened";
-                $error->messageInArabic = "حصل خطأ";
-                $error->statusCode = 500;
-                throw $error;
-            }
-
-            return response()->json([
-                "message" => "supplier's account has been suspended",
-                "messageInArabic" => "تم تجميد حساب المورّد",
-                "statusCode" => 200
-            ], 200);
-
-        }catch(Error $err){
-            return response()->json([
-                "message" => $err->errorMessage,
-                "messageInArabic" => $err->messageInArabic,
-                "statusCode" => $err->statusCode
-            ], $err->statusCode);
-        }
-    }
-    public function cancelSupplier(Request $request)
-    {
-        try{
-
-            //System checks the supplier id
-            $supplierId = intval($request->input("supplierId")) ? $request->input("supplierId") : 0;
-
-             //If supplier id not a number then system will return an error
-            if($supplierId == 0){
-                $error = new Error(null);
-                $error->errorMessage ="Invalid id for supplier";
-                $error->messageInArabic = "معرّف خاطئ للمورّد";
-                $error->statusCode = 422;
-                throw $error;
-            }
-
-            //Fetch the supplier data
-            $supplier= Supplier::where("supplierId", $supplierId)->first();
-
-            //If there is no supplier found in the database system will return an error
-            if($supplier == null) {
-                $error = new Error(null);
-                $error->errorMessage = "There is no supplier with this id";
-                $error->messageInArabic = "لا يوجد عميل مسجل";
-                $error->statusCode = 404;
-                throw $error;
-            }
-
-            //Cancel the supplier by changing verified value to 3
-            $supplier = Supplier::where("supplierId", $supplierId)->update([
-                "verified" => "3"
-            ]);
-
-            //If there is no record updated system will display an error
-            if($supplier == 0){
-                $error = new Error(null);
-                $error->errorMessage = "There is something wrong happened";
-                $error->messageInArabic = "حصل خطأ";
-                $error->statusCode = 500;
-                throw $error;
-            }
-
-            return response()->json([
-                "message" => "supplier's account has been canceled",
-                "messageInArabic" => "تم الغاء حساب المورّد",
-                "statusCode" => 200
-            ], 200);
-
-        }catch(Error $err){
-            return response()->json([
-                "message" => $err->errorMessage,
-                "messageInArabic" => $err->messageInArabic,
-                "statusCode" => $err->statusCode
-            ], $err->statusCode);
-        }
-    }
 }

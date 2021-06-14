@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Hash;
 use App\Models\RRequest\Request as Rrequest;
+use App\Models\User\User;
 
 class SupplierController extends Controller
 {
@@ -70,8 +71,9 @@ class SupplierController extends Controller
                 "nameInArabic" => "required|string|min:2|max:30|regex:/^[؀-ۿ\s]+$/",
                 "name" => "required|string|min:2|max:30|regex:/^[A-Za-z\s]+$/",
                 "password" => "required|string|min:7|max:20|regex:/^[A-Za-z\s].+$/",
-                "email" =>"required|email|unique:suppliers,email",
-                "phone"  => "required|string|min:10|max:13|unique:suppliers,phone|regex:/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/",
+                "email" =>"required|email|unique:users_info,email",
+                "phone"  => "required|string|min:10|max:13|unique:users_info,phone|regex:/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/",
+                "userType" => "required|numeric|min:2|max:2",
                 "companyInEnglish" => "required|string|min:2|max:30|regex:/^[A-Za-z\s]+$/",
                 "companyInArabic" => "required|string|min:2|max:30|regex:/^[؀-ۿ\s]+$/"
             ];
@@ -94,6 +96,26 @@ class SupplierController extends Controller
                 throw $error;
             }
 
+
+            $supplierAccount = User::create([
+                "nameInArabic" => $request->input("nameInArabic"),
+                "name" => $request->input("name"),
+                "password" => Hash::make($request->input("password")),
+                "email"=> $request->input("email"),
+                "phone" => $request->input("phone"),
+                "userType" => $request->input("userType")
+            ]);
+
+
+            if($supplierAccount == null ){
+                $error = new Error(null);
+                $error->errorMessage = "There is something wrong happened";
+                $error->messageInArabic = "حصل خطأ";
+                $error->statusCode = 500;
+                throw $error;
+            }
+
+
         
 
             /**
@@ -102,13 +124,9 @@ class SupplierController extends Controller
              * We convert the address field into json because the column address type is in json format
              */
             $supplier = Supplier::create([
-                "nameInArabic" => $request->input("nameInArabic"),
-                "name" => $request->input("name"),
-                "password" => Hash::make($request->input("password")),
-                "email"=> $request->input("email"),
+                "supplierId" => $supplierAccount->id,
                 "companyInEnglish" => $request->input("companyInEnglish"),
                 "companyInArabic" => $request->input("companyInArabic"),
-                "phone" => $request->input("phone")
             ]);
 
 
@@ -156,7 +174,7 @@ class SupplierController extends Controller
 
             $supplierId =   $supplierId = intval($request->input("supplierId")) ? $request->input("supplierId") : 0;
 
-            $supplier = Supplier::where("supplierId", $supplierId)->first();
+            $supplier = Supplier::with("account")->where("supplierId", $supplierId)->first();
             if($supplier == null ){
                 $error = new Error(null);
                 $error->errorMessage = "There is no supplier found";
@@ -197,13 +215,14 @@ class SupplierController extends Controller
             /**
              * System will call the client with the coming id
              */
+            $supplierAccount = User::where("uid", $supplierId)->first();
             $supplier = Supplier::where("supplierId", $supplierId)->first();
 
             /**
              * System checks the supplier if exists or not.
              * If no supplier is found in the suppliers table, system will return an error
              */
-            if($supplier == null){
+            if($supplier == null || $supplierAccount == null){
                 $error = new Error(null);
                 $error->errorMessage = "There is no supplier with this id";
                 $error->messageInArabic = "لا يوجد موّرد مسجل";
@@ -245,27 +264,21 @@ class SupplierController extends Controller
              * We hash the password to encrypt it from stealing.
              * We convert the address field into json because the column address type is in json format
              */
-            $supplier = Supplier::where("supplierId", $supplierId)->update([
+            $supplierAcount = User::where("uid", $supplierId)->update([
                 "nameInArabic" => $request->input("nameInArabic"),
                 "name" => $request->input("name"),
                 "email"=> $request->input("email"),
-                "companyInEnglish" => $request->input("companyInEnglish"),
-                "companyInArabic" => $request->input("companyInArabic"),
                 "phone" => $request->input("phone")
             ]);
 
 
-            /**
-             * Here we check if there a supplier inserted or not.
-             * If not inserted successfully. The system returns an error message.
-             */
-            if($supplier == 0 ){
-                $error = new Error(null);
-                $error->errorMessage = "There is something wrong happened";
-                $error->messageInArabic = "حصل خطأ";
-                $error->statusCode = 500;
-                throw $error;
-            }
+
+            $supplier = Supplier::where("supplierId", $supplierId)->update([
+                "companyInEnglish" => $request->input("companyInEnglish"),
+                "companyInArabic" => $request->input("companyInArabic")
+            ]);
+
+            
 
              /**
              * System will send a response to the client to notify him the registration was succeed
@@ -299,28 +312,24 @@ class SupplierController extends Controller
 
             $supplierId =   $supplierId = intval($request->input("supplierId")) ? $request->input("supplierId") : 0;
 
-            $supplier = Supplier::where("supplierId", $supplierId)->first();
-            if($supplier == null ){
+            $supplierAccount = User::where("uid", $supplierId)->first();
+
+
+            if($supplierAccount == null ){
                 $error = new Error(null);
                 $error->errorMessage = "There is something wrong happened";
                 $error->messageInArabic = "لم يتم ايجاد مورد";
                 $error->statusCode = 404;
                 throw $error;
             }
-            $supplier = Supplier::where("supplierId", $supplierId)->delete();
 
-            if($supplier == 0){
-                $error = new Error(null);
-                $error->errorMessage = "There is no supplier found";
-                $error->messageInArabic = "حصل خطأ";
-                $error->statusCode = 404;
-                throw $error;
-            }
 
             return response()->json([
-                "suppliers" => $supplier,
+                "message" => "Supplier has been deleted",
+                "messageInArabic" => "تم حذف الموّرد بنجاح",
                 "statusCode" => 200
             ], 200);
+
        }catch(Error $err){
             return response()->json([
                 "message" => $err->message,

@@ -8,6 +8,7 @@ use App\Models\Client\Client;
 use Error;
 use Illuminate\Http\Request;
 use App\Models\RRequest\Request as Rrequest;
+use App\Models\User\User;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Hash;
 
@@ -26,7 +27,7 @@ class ClientController extends Controller
     public function index()
     {
         try{
-            $clients= Client::with("requests")->get();
+            $clients= Client::with(["accounts","requests", "brands"])->get();
             if(count($clients) < 1){
                 $error= new Error(null);
                 $error->message = "No clients are found";
@@ -81,9 +82,9 @@ class ClientController extends Controller
                 "nameInArabic" => "required|string|min:2|max:30|regex:/^[؀-ۿ\s]+$/",
                 "name" => "required|string|min:2|max:30|regex:/^[A-Za-z\s]+$/",
                 "password" => "required|string|min:7|max:20|regex:/^[A-Za-z\s].+$/",
-                "email" =>"required|email|unique:clients,email",
+                "email" =>"required|email|unique:users_info,email",
                 "address" => "required",
-                "phone"  => "required|string|min:10|max:13|unique:clients,phone|regex:/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/",
+                "phone"  => "required|string|min:10|max:13|unique:users_info,phone|regex:/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/",
             ];
     
             /**
@@ -117,13 +118,27 @@ class ClientController extends Controller
              * We hash the password to encrypt it from stealing.
              * We convert the address field into json because the column address type is in json format
              */
-            $client = Client::create([
+            $clientUser = User::create([
                 "nameInArabic" => $request->input("nameInArabic"),
                 "name" => $request->input("name"),
                 "password" => Hash::make($request->input("password")),
                 "email"=> $request->input("email"),
-                "address" => json_encode($sanitizedAddress),
                 "phone" => $request->input("phone")
+            ]);
+
+            //If registering a new account failed
+            if($clientUser == null ){
+                $error = new Error(null);
+                $error->errorMessage = "There is something wrong happened";
+                $error->messageInArabic = "حصل خطأ";
+                $error->statusCode = 500;
+                throw $error;
+            }
+
+            //If assigned the new account to the client failed
+            $client = Client::create([
+                "clientId" => $clientUser->id,
+                "address" => json_encode($sanitizedAddress)
             ]);
 
 
@@ -131,7 +146,7 @@ class ClientController extends Controller
              * Here we check if there a client inserted or not.
              * If not inserted successfully. The system returns an error message.
              */
-            if($client == null ){
+            if($client == null || $clientUser == null ){
                 $error = new Error(null);
                 $error->errorMessage = "There is something wrong happened";
                 $error->messageInArabic = "حصل خطأ";
@@ -180,7 +195,7 @@ class ClientController extends Controller
             /**
              * System will call the client with the coming id
              */
-            $client = Client::with("requests")->where("clientId", $clientId)->first();
+            $client = Client::with("accounts")->where("clientId", $clientId)->first();
 
             /**
              * System checks the client if exists or not.
@@ -234,13 +249,14 @@ class ClientController extends Controller
             /**
              * System will call the client with the coming id
              */
+            $clientAccount = User::where("uid", $clientId)->first();
             $client = Client::where("clientId", $clientId)->first();
 
             /**
              * System checks the client if exists or not.
              * If no client is found in the clients table, system will return an error
              */
-            if($client == null){
+            if($client == null || $clientAccount== null){
                 $error = new Error(null);
                 $error->errorMessage = "There is no client with this id";
                 $error->messageInArabic = "لا يوجد عميل مسجل";
@@ -251,7 +267,7 @@ class ClientController extends Controller
             $rules = [
                 "nameInArabic" => "required|string|min:2|max:30|regex:/^[؀-ۿ\s]+$/",
                 "name" => "required|string|min:2|max:30|regex:/^[A-Za-z\s]+$/",
-                "email" =>"required|email|unique:clients,email",
+                "email" =>"required|email|unique:users_info,email",
                 "address" => "required",
                 "phone"  => "required|string|min:10|max:13|regex:/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/",
             ];
@@ -272,28 +288,20 @@ class ClientController extends Controller
             $sanitizedAddress= ValidationError::sanitizeArray($request->input("address"));
 
            
-            $client = Client::where("clientId", $clientId)->update([
+            $clientAccount = User::where("uid", $clientId)->update([
                 "nameInArabic" => $request->input("nameInArabic"),
                 "name" => $request->input("name"),
                 "email"=> $request->input("email"),
-                "address" => json_encode($sanitizedAddress),
                 "phone" => $request->input("phone")
             ]);
 
-        
 
+            $client = Client::where("clientId", $clientId)->update([
+                "address" => json_encode($sanitizedAddress)
+            ]);
 
-            /**
-             * Here we check if the client updated or not.
-             * If not updated successfully. The system returns an error message.
-             */
-            if($client == 0 ){
-                $error = new Error(null);
-                $error->errorMessage = "There is something wrong happened";
-                $error->messageInArabic = "حصل خطأ";
-                $error->statusCode = 500;
-                throw $error;
-            }
+            
+
 
             return response()->json([
                 "message" => "Client has been updated successfully",
@@ -332,28 +340,27 @@ class ClientController extends Controller
                * System will call the brand with the coming id
                */
               
-              $client = Client::where("clientId", $clientId)->first();
-  
-              /**
-               * System checks the client if exists or not.
-               * If no client is found in the client table, system will return an error
-               */
-              if($client == null){
-                  $error = new Error(null);
-                  $error->errorMessage = "There is no client with this id";
-                  $error->messageInArabic = "لا يوجد عميل مسجل";
-                  $error->statusCode = 404;
-                  throw $error;
-              }
-             
-              $client = Client::where("clientId", $clientId)->delete();
+              $clientAccount = User::where("uid", $clientId)->first();
               
-
             /**
-             * Here we check if the client deleted or not.
-             * If not deleted successfully. The system returns an error message.
+             * System checks the client if exists or not.
+             * If no client is found in the clients table, system will return an error
              */
-            if($client == 0 ){
+            if($clientAccount== null){
+                $error = new Error(null);
+                $error->errorMessage = "There is no client with this id";
+                $error->messageInArabic = "لا يوجد عميل مسجل";
+                $error->statusCode = 404;
+                throw $error;
+            }
+             
+              $clientAccount = User::where("uid", $clientId)->delete();
+
+                /**
+               * Here we check if the client deleted or not.
+               * If not deleted successfully. The system returns an error message.
+               */
+              if($clientAccount == 0 ){
                 $error = new Error(null);
                 $error->errorMessage = "There is something wrong happened";
                 $error->messageInArabic = "حصل خطأ";
@@ -361,8 +368,9 @@ class ClientController extends Controller
                 throw $error;
             }
 
+
             return response()->json([
-                "message" => "client has been deleted successfully",
+                "message" => "Client has been deleted successfully",
                 "messageInArabic" => "تم حذف العميل بنجاح",
                 "statusCode" => 200,
             ], 200);
