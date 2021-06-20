@@ -47,11 +47,17 @@ Route::prefix('moderator')->group(function () {
     Route::patch("/update-supplier", [ModeratorController::class, 'updateSupplier']);
     
     //To accept a new supplier
-    Route::patch("/accept-supplier", [ModeratorController::class, 'acceptSupplier']);
+    Route::patch("/verify-supplier", [ModeratorController::class, 'verifySupplier']);
     //To suspend a supplier
     Route::patch("/suspend-supplier", [ModeratorController::class, 'suspendSupplier']);
     //To cancel a supplier
-    Route::patch("/cancel-supplier", [ModeratorController::class, 'cancelSupplier']);
+    Route::patch("/unverify-supplier", [ModeratorController::class, 'unverifySupplier']);
+
+    //To get the last five records from the tables
+    Route::get("/last-five-records", [ModeratorController::class, 'lastFiveRecords']);
+
+    //To get all records in the db together
+    Route::get('/all-records/{status?}', [ModeratorController::class, 'allRecords']);
     
 });
 

@@ -21,7 +21,7 @@ class Request extends Model
     protected $hidden = ["clientId","supplierId"];
 
     public function clients(){
-        return $this->hasManyThrough(
+        return $this->hasOneThrough(
             User::class,
             Request::class,
             "requestId",

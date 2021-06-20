@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers\Moderator;
 use App\Http\Validation\ValidationError;
+use App\Models\Brand\Brand;
 use App\Models\Client\Client;
 use App\Models\Moderator\Moderator;
 use App\Models\Supplier\Supplier;
 use App\Models\User\User;
+use App\Models\RRequest\Request as Rrequests;
 use Error;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
@@ -377,13 +379,13 @@ class ModeratorController extends Controller
             /**
              * System will call the client with the coming id
              */
-            $client = Client::where("clientId", $clientId)->get();
+            $client = Client::where("clientId", $clientId)->first();
 
             /**
              * System checks the client if exists or not.
              * If no client is found in the clients table, system will return an error
              */
-            if(count($client) == 0){
+            if($client == null){
                 $error = new Error(null);
                 $error->errorMessage = "There is no client with this id";
                 $error->messageInArabic = "لا يوجد عميل مسجل";
@@ -397,7 +399,6 @@ class ModeratorController extends Controller
                 "email" =>"required|email",
                 "address" => "required",
                 "phone"  => "required|string|min:10|max:13|regex:/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/",
-                "password" => "required|string|min:7|max:20|regex:/^[A-Za-z\s].+$/",
             ];
 
         
@@ -415,31 +416,19 @@ class ModeratorController extends Controller
             
             $sanitizedAddress= ValidationError::sanitizeArray($request->input("address"));
 
-            
-            $client = Client::where("clientId", $clientId)->update([
+            $userClient = User::where("uid", $clientId)->update([
                 "nameInArabic" => $request->input("nameInArabic"),
                 "name" => $request->input("name"),
                 "email"=> $request->input("email"),
-                "address" => json_encode($sanitizedAddress),
                 "phone" => $request->input("phone"),
-                "password" => Hash::make($request->input("password")),
             ]);
 
-        
+            
+            $client = Client::where("clientId", $clientId)->update([
+                "address" => json_encode($sanitizedAddress),
+            ]);
 
-
-            /**
-             * Here we check if the client updated or not.
-             * If not updated successfully. The system returns an error message.
-             */
-            if($client == 0 ){
-                $error = new Error(null);
-                $error->errorMessage = "There is something wrong happened";
-                $error->messageInArabic = "حصل خطأ";
-                $error->statusCode = 500;
-                throw $error;
-            }
-
+    
             return response()->json([
                 "message" => "Client has been updated successfully",
                 "messageInArabic" => "تم تحديث العميل بنجاح",
@@ -469,13 +458,13 @@ class ModeratorController extends Controller
              /**
               * System will call the client with the coming id
               */
-             $supplier = Supplier::where("supplierId", $supplierId)->first();
+             $supplierAccount = User::where("uid", $supplierId)->first();
  
              /**
               * System checks the supplier if exists or not.
               * If no supplier is found in the suppliers table, system will return an error
               */
-             if($supplier == null){
+             if($supplierAccount == null){
                  $error = new Error(null);
                  $error->errorMessage = "There is no supplier with this id";
                  $error->messageInArabic = "لا يوجد موّرد مسجل";
@@ -490,7 +479,6 @@ class ModeratorController extends Controller
                  "phone"  => "required|string|min:10|max:13|regex:/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/",
                  "companyInEnglish" => "required|string|min:2|max:30|regex:/^[A-Za-z\s]+$/",
                  "companyInArabic" => "required|string|min:2|max:30|regex:/^[؀-ۿ\s]+$/",
-                 "password" => "required|string|min:7|max:20|regex:/^[A-Za-z\s].+$/"
              ];
      
              /**
@@ -511,7 +499,13 @@ class ModeratorController extends Controller
                  throw $error;
              }
  
-         
+             
+             $supplierAccount = User::where("uid", $supplierId)->update([
+                "nameInArabic" => $request->input("nameInArabic"),
+                "name" => $request->input("name"),
+                "email"=> $request->input("email"),
+                "phone" => $request->input("phone")
+             ]);
  
              /**
               * Here We create a new supplier if all user inputs passed the validation.
@@ -519,27 +513,11 @@ class ModeratorController extends Controller
               * We convert the address field into json because the column address type is in json format
               */
              $supplier = Supplier::where("supplierId", $supplierId)->update([
-                 "nameInArabic" => $request->input("nameInArabic"),
-                 "password" => Hash::make($request->input("password")),
-                 "name" => $request->input("name"),
-                 "email"=> $request->input("email"),
                  "companyInEnglish" => $request->input("companyInEnglish"),
                  "companyInArabic" => $request->input("companyInArabic"),
-                 "phone" => $request->input("phone")
              ]);
  
  
-             /**
-              * Here we check if there a supplier inserted or not.
-              * If not inserted successfully. The system returns an error message.
-              */
-             if($supplier == 0 ){
-                 $error = new Error(null);
-                 $error->errorMessage = "There is something wrong happened";
-                 $error->messageInArabic = "حصل خطأ";
-                 $error->statusCode = 500;
-                 throw $error;
-             }
  
               /**
               * System will send a response to the client to notify him the registration was succeed
@@ -563,7 +541,7 @@ class ModeratorController extends Controller
 
 
     
-    public function acceptSupplier(Request $request)
+    public function verifySupplier(Request $request)
     {
         try{
 
@@ -606,7 +584,7 @@ class ModeratorController extends Controller
             }
 
             return response()->json([
-                "message" => "supplier's account has been updated",
+                "message" => "supplier's account has been verified",
                 "messageInArabic" => "تم تفعيل حساب المورّد",
                 "statusCode" => 200
             ], 200);
@@ -678,7 +656,7 @@ class ModeratorController extends Controller
     }
 
     
-    public function cancelSupplier(Request $request)
+    public function unverifySupplier(Request $request)
     {
         try{
 
@@ -708,7 +686,7 @@ class ModeratorController extends Controller
 
             //Cancel the supplier by changing verified value to 3
             $supplier = Supplier::where("supplierId", $supplierId)->update([
-                "verified" => "3"
+                "verified" => "0"
             ]);
 
             //If there is no record updated system will display an error
@@ -721,8 +699,8 @@ class ModeratorController extends Controller
             }
 
             return response()->json([
-                "message" => "supplier's account has been canceled",
-                "messageInArabic" => "تم الغاء حساب المورّد",
+                "message" => "supplier's account has been unverified",
+                "messageInArabic" => "تم الغاء تفعيل حساب المورّد",
                 "statusCode" => 200
             ], 200);
 
@@ -734,6 +712,45 @@ class ModeratorController extends Controller
             ], $err->statusCode);
         }
     }
+
+    public function lastFiveRecords()
+    {
+        $clients = Client::with("accounts")->orderBy("clientId", "DESC")->limit(5)->get(["clientId"]);
+        $approvedSuppliers = Supplier::with("accounts")->where("verified", 1)->orderBy("supplierId", "DESC")->limit(5)->get(["supplierId"]);
+        $unApprovedSuppliers = Supplier::with("accounts")->where("verified", 0)->orderBy("supplierId", "DESC")->limit(5)->get(["supplierId"]);
+        $submittedRequests = Rrequests::with("clients")->where("requestStatus", 0)->orderBy("created_at", "DESC")->limit("5")->get(["requestId", "address"]);
+        $completedRequests = Rrequests::with("clients")->where("requestStatus", 2)->orderBy("created_at", "DESC")->limit("5")->get(["requestId", "address"]);
+        $canceledRequests = Rrequests::with("clients")->where("requestStatus", 3)->orderBy("created_at", "DESC")->limit("5")->get(["requestId", "address"]);
+
+        return response()->json([
+            "clients" => $clients,
+            "approvedSuppliers" => $approvedSuppliers,
+            "unApprovedSuppliers" => $unApprovedSuppliers,
+            "submittedRequests" => $submittedRequests,
+            "completedRequests" => $completedRequests,
+            "canceledRequests" => $canceledRequests,
+            "statusCode" => 200
+        ], 200);
+    }
     
+    public function allRecords($status)
+    {
+        $moderator = null;
+        $clients = Client::with("accounts")->get();
+        $suppliers = Supplier::with("accounts")->get();
+        $requests = Rrequests::with("clients")->get();
+        $brands = Brand::all()->toArray();
+        if($status == "admin"){
+            $moderator = Moderator::with("accounts")->get();
+        }
+        return response()->json([
+            "clients" => $clients,
+            "suppliers" => $suppliers,
+            "requests" => $requests,
+            "brands" => $brands,
+            "moderators" => $moderator,
+            "statusCode" => 200
+        ], 200);
+    }
 
 }

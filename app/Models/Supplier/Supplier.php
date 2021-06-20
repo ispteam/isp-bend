@@ -13,8 +13,7 @@ class Supplier extends Model
     protected $table = "suppliers";
     protected $primarykey = "supplierId";
     protected $fillable = ["supplierId","companyInArabic","companyInEnglish", "verified"];
-
-    public $timestamps= false;
+    
 
     public function accounts(){
         return $this->hasOne(

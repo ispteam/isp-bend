@@ -16,7 +16,7 @@ class Moderator extends Model
 
     public $timestamps = false;
     
-    public function account(){
+    public function accounts(){
         return $this->hasOne(
             User::class,
             "uid",

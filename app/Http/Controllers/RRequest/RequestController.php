@@ -243,7 +243,6 @@ class RequestController extends Controller
                 "finalAmount" => $request->input("finalAmount"),
                 "supplierId" => $supplierId,
                 "amounts" => null
-                
             ]);
 
             if($request == 0){
