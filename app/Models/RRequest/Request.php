@@ -42,5 +42,16 @@ class Request extends Model
         );
     }
 
+    public function suppliers(){
+        return $this->hasOneThrough(
+            User::class,
+            Request::class,
+            "requestId",
+            "uid",
+            "requestId",
+            "supplierId"
+        );
+    }
+
 
 }

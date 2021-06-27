@@ -50,6 +50,8 @@ return [
         ],
 
         'mailgun' => [
+            'domain' => 'sandbox7da11d006e624e07843557b6dccccb24.mailgun.org',
+		    'secret' => '1e0dc9d9524cfbf434593572099ed4dd-1f1bd6a9-87c266dd',
             'transport' => 'mailgun',
         ],
 

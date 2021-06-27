@@ -282,7 +282,7 @@ class RequestController extends Controller
             }
 
             $request= Rrequest::where("requestId", $requestId)->update([
-                "requestStatus" => "2",
+                "requestStatus" => "1",
                
             ]);
 
@@ -326,7 +326,7 @@ class RequestController extends Controller
             }
 
             $request= Rrequest::where("requestId", $requestId)->update([
-                "requestStatus" => "3",
+                "requestStatus" => "2",
                
             ]);
 
@@ -368,7 +368,7 @@ class RequestController extends Controller
             }
 
             $request= Rrequest::where("requestId", $requestId)->update([
-                "requestStatus" => "4",
+                "requestStatus" => "3",
                
             ]);
 

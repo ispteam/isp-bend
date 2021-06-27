@@ -15,6 +15,10 @@ use Illuminate\Support\Facades\Hash;
 
 class ModeratorController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware("isAuthorized")->except(["index", "lastFiveRecords" ,"allRecords", "show"]);
+    }
     /**
      * Display a listing of the resource.
      *
@@ -76,7 +80,6 @@ class ModeratorController extends Controller
                 "name" => "required|string|min:2|max:30|regex:/^[A-Za-z\s]+$/",
                 "password" => "required|string|min:7|max:20|regex:/^[A-Za-z\s].+$/",
                 "email" =>"required|email|unique:users_info,email",
-                "userType" => "required|numeric|max:1",
                 "phone"  => "required|string|min:10|max:13|unique:users_info,phone|regex:/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/"
             ];
     
@@ -109,7 +112,7 @@ class ModeratorController extends Controller
                 "password" => Hash::make($request->input("password")),
                 "email"=> $request->input("email"),
                 "phone" => $request->input("phone"),
-                "userType" => $request->input("userType"),
+                "userType" => "1",
             ]);
 
             if($moderatorAccount == null ){
@@ -142,6 +145,7 @@ class ModeratorController extends Controller
             return response()->json([
                 "message" => "Moderator has successfully registered",
                 "messageInArabic" => "تم تسجيل المشرف بنجاح",
+                "moderatorId" => $moderatorAccount->id,
                 "statusCode" => 201,
             ], 201);
             
@@ -164,7 +168,7 @@ class ModeratorController extends Controller
      * @param  \App\Models\Moderator  $moderator
      * @return \Illuminate\Http\Response
      */
-    public function show(Request $request)
+    public function show($moderatorId)
     {
         try{
 
@@ -173,7 +177,7 @@ class ModeratorController extends Controller
              * If a number we will store it in the moderatorId variable.
              * If not a number we will assign the variable to zero
              */
-            $moderatorId = intval($request->input("moderatorId")) ? $request->input("moderatorId") : 0;
+            $moderatorId = intval($moderatorId) ? $moderatorId : 0;
 
             /**
              * System will call the client with the coming id
@@ -238,7 +242,6 @@ class ModeratorController extends Controller
                 $error->errorMessage = "There is no Moderator with this id";
                 $error->messageInArabic = "لا يوجد مشرف مسجل";
                 $error->statusCode = 404;
-                $error->xx = $moderatorId;
                 throw $error;
             }
 
@@ -246,7 +249,6 @@ class ModeratorController extends Controller
             $rules = [
                 "nameInArabic" => "required|string|min:2|max:30|regex:/^[؀-ۿ\s]+$/",
                 "name" => "required|string|min:2|max:30|regex:/^[A-Za-z\s]+$/",
-                "password" => "required|string|min:7|max:20|regex:/^[A-Za-z\s].+$/",
                 "phone"  => "required|string|min:10|max:13|regex:/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/",
                 "email" => "required|email",
             ];
@@ -269,7 +271,6 @@ class ModeratorController extends Controller
             $moderatorAccount = User::where("uid", $moderatorId)->update([
                 "nameInArabic" => $request->input("nameInArabic"),
                 "name" => $request->input("name"),
-                "password" => Hash::make($request->input("password")),
                 "phone" => $request->input("phone"),
                 "email" => $request->input("email")
             ]);
@@ -310,7 +311,7 @@ class ModeratorController extends Controller
              * If a number we will store it in the $moderatorId variable.
              * If not a number we will assign the variable to zero
              */
-              $moderatorId = intval($request->input("moderatorId")) ? $request->input("clientId") : 0;
+              $moderatorId = intval($request->input("moderatorId")) ? $request->input("moderatorId") : 0;
               /**
                * System will call the brand with the coming id
                */
@@ -323,7 +324,7 @@ class ModeratorController extends Controller
              */
             if($moderatorAccount== null){
                 $error = new Error(null);
-                $error->errorMessage = "There is no client with this id";
+                $error->errorMessage = "There is no moderator with this id";
                 $error->messageInArabic = "لا يوجد عميل مسجل";
                 $error->statusCode = 404;
                 throw $error;
@@ -359,7 +360,7 @@ class ModeratorController extends Controller
             return response()->json([
                 "message" => $err->errorMessage,
                 "messageInArabic" => $err->messageInArabic,
-                "statusCode" => $err->statusCode
+                "statusCode" => $err->statusCode,
             ], $err->statusCode);
             
         }
@@ -738,10 +739,10 @@ class ModeratorController extends Controller
         $moderator = null;
         $clients = Client::with("accounts")->get();
         $suppliers = Supplier::with("accounts")->get();
-        $requests = Rrequests::with("clients")->get();
+        $requests = Rrequests::with(["clients", "brands", "suppliers"])->get();
         $brands = Brand::all()->toArray();
         if($status == "admin"){
-            $moderator = Moderator::with("accounts")->get();
+            $moderator = Moderator::with("account")->get();
         }
         return response()->json([
             "clients" => $clients,

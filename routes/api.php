@@ -8,6 +8,7 @@ use App\Http\Controllers\Moderator\ModeratorController;
 use App\Http\Controllers\RRequest\RequestController;
 use App\Http\Controllers\Shipper\ShipperController;
 use App\Http\Controllers\Supplier\SupplierController;
+use App\Http\Controllers\UsersController;
 use App\Models\BridgeTables\ModeratorSupplier;
 use App\Models\RRequest\Request;
 use Illuminate\Support\Facades\Route;
@@ -144,6 +145,12 @@ Route::prefix('request')->group(function () {
     //To update the request status when it's completed
     Route::patch("/complete-request", [RequestController::class, 'complete']);
 });
+
+
+    Route::patch("/add-token", [UsersController::class, 'addToken']);   
+
+    Route::patch('/logout', [UsersController::class, 'logout']);
+
 
   /**
  * ==============

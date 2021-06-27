@@ -10,7 +10,7 @@ class User extends Model
     use HasFactory;
     protected $table = "users_info";
     protected $primarykey = "uid";
-    protected $fillable = ["name", "nameInArabic", "password", "email", "phone", "userType"];
-    protected $hidden = ["password", "userType"];
+    protected $fillable = ["name", "nameInArabic", "password", "email", "phone", "userType", "token"];  
+    protected $hidden = ["password"];
     public $timestamps = false;
 }

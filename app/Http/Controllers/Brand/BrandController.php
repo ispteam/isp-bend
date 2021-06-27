@@ -113,6 +113,7 @@ class BrandController extends Controller
             return response()->json([
                 "message" => "brand has been successfully registered",
                 "messageInArabic" => "تم تسجيل العلامة تجارية بنجاح",
+                "brandId" => $brand->id,
                 "statusCode" => 201,
             ], 201);
             

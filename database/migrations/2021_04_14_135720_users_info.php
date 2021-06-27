@@ -15,6 +15,7 @@ class UsersInfo extends Migration
             $table->string("password");
             $table->string("email")->unique();
             $table->string("phone");
+            $table->longText("token")->nullable();
             $table->string("userType")->default("3"); // 0-ADMIN, 1-MODERATORS, 2-SUPPLIERS, 3-CLIENT;
         });
     }

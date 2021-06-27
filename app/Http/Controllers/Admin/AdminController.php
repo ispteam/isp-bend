@@ -14,6 +14,11 @@ use Illuminate\Support\Facades\Hash;
 class AdminController extends Controller
 {
 
+    public function __construct()
+    {
+        $this->middleware("isAuthorized")->except(["update", "show"]);
+    }
+
     /**
      * Store a newly created resource in storage.
      *
@@ -36,7 +41,7 @@ class AdminController extends Controller
                 "name" => "required|string|min:2|max:30|regex:/^[A-Za-z\s]+$/",
                 "password" => "required|string|min:7|max:20|regex:/^[A-Za-z\s].+$/",
                 "email" =>"required|email|unique:users_info,email",
-                "userType" => "required|numeric|max:1",
+                "userType" => "required",
                 "phone"  => "required|string|min:10|max:13|unique:users_info,phone|regex:/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/",
             ];
 
@@ -111,7 +116,7 @@ class AdminController extends Controller
      * @param  \App\Models\Admin  $admin
      * @return \Illuminate\Http\Response
      */
-    public function show(Request $request)
+    public function show($adminId)
     {
         try{
   
@@ -120,7 +125,7 @@ class AdminController extends Controller
              * If a number we will store it in the adminId variable.
              * If not a number we will assign the variable to zero
              */
-              $adminId = intval($request->input("adminId")) ? $request->input("adminId") : 0;
+              $adminId = intval($adminId) ? $adminId : 0;
               /**
                * System will call the admin with the coming id
                */
@@ -163,7 +168,7 @@ class AdminController extends Controller
      * @param  \App\Models\Admin  $admin
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Admin $admin)
+    public function update(Request $request)
     {
         try{
             
@@ -181,34 +186,33 @@ class AdminController extends Controller
                 $error->statusCode = 404;
                 throw $error;
             }
-           $rules = [
-               "nameInArabic" => "required|string|min:2|max:30|regex:/^[؀-ۿ\s]+$/",
-               "name" => "required|string|min:2|max:30|regex:/^[A-Za-z\s]+$/",
-               "password" => "required|string|min:7|max:20|regex:/^[A-Za-z\s].+$/",
-               "email" =>"required|email|unique:users_info,email",
-               "phone"  => "required|string|min:10|max:13|regex:/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/",
-           ];
+        //    $rules = [
+        //        "nameInArabic" => "required|string|min:2|max:30|regex:/^[؀-ۿ\s]+$/",
+        //        "name" => "required|string|min:2|max:30|regex:/^[A-Za-z\s]+$/",
+        //        "email" =>"required|email|unique:users_info,email",
+        //        "phone"  => "required|string|min:10|max:13|regex:/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/",
+        //    ];
 
-           $validator= ValidationError::validationUserInput($request, $rules);
+        //    $validator= ValidationError::validationUserInput($request, $rules);
 
            
            /**
             * Here we will check if some of the fields are failed, so the system will return a validation error of the specific field.
             */
-           if($validator->fails()){
-               $error = new Error(null);
-               $error->errorMessage = $validator->errors();
-               $error->messageInArabic= "";
-               $error->statusCode = 422;
-               throw $error;
-           }
+        //    if($validator->fails()){
+        //        $error = new Error(null);
+        //        $error->errorMessage = $validator->errors();
+        //        $error->messageInArabic= "";
+        //        $error->statusCode = 422;
+        //        throw $error;
+        //    }
 
            $admin = User::where("uid", $adminId)->update([
-               "nameInArabic" => $request->input("nameInArabic"),
-               "name" => $request->input("name"),
-               "email"=> $request->input("email"),
-               "phone" => $request->input("phone"),
-               "password" => Hash::make($request->input("passsword"))
+            //    "nameInArabic" => $request->input("nameInArabic"),
+            //    "name" => $request->input("name"),
+            //    "email"=> $request->input("email"),
+            //    "phone" => $request->input("phone"),
+            "password" => Hash::make($request->input("password"))
            ]);
 
 
@@ -243,5 +247,7 @@ class AdminController extends Controller
            ]);
        }
     }
+
+
 
 }
