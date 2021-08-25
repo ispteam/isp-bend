@@ -734,7 +734,7 @@ class RequestController extends Controller
             
 
             return response()->json([
-                "requests" =>$request->input("carsPref"),
+                "requests" => Supplier::all(),
                 // "length" => $length,
                 "statusCode" => 200
             ], 200);
