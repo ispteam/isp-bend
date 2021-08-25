@@ -162,7 +162,7 @@ Route::prefix('request')->group(function () {
     Route::post("/detailed-request", [RequestController::class, 'detailedRequest']);
     
     //To fetch pending requests
-    Route::get("/pending-requests/{offset?}/{pref}/{carsPref}", [RequestController::class, 'pendingRequests']);
+    Route::post("/pending-requests/{offset?}/{pref}", [RequestController::class, 'pendingRequests']);
 
     //To fetch only assigned requests to specific supplier
     Route::get('/assigned-requests/{supplierId}/{offset?}', [RequestController::class, 'assignedRequests']);

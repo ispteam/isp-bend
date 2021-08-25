@@ -705,16 +705,16 @@ class RequestController extends Controller
         }
     }
 
-    public function pendingRequests ($offset=0, $pref, $carsPref) {
+    public function pendingRequests (Request $request , $offset=0, $pref) {
         try{
             $requests = [];
             $length = null;
             if($pref == "cars"){
-                json_decode($carsPref);
-                if(!in_array("all cars", $carsPref)){
+                $supplierCarsPref = json_decode($request->input("carsPref"));
+                if(!in_array("all cars", $supplierCarsPref)){
                     $req= Rrequest::with(["clients", "brands", "suppliers"])->orderBy("created_at", "DESC")->where("requestStatus", "0")->where("finalAmount", "=" , "0")->where("field", "cars")->limit(6)->offset($offset)->get();
                     foreach($req as $request){
-                        if($request->brands->brandName == $carsPref){
+                        if($request->brands->brandName == $supplierCarsPref){
                             $requests[] = $request;
                         }
                     }
