@@ -412,7 +412,7 @@ class RequestController extends Controller
             $request= Rrequest::where("requestId", $requestId)->update([
                 "finalAmount" => $request->input("finalAmount"),
                 "supplierId" => $supplierId,
-                "requestStatus" => "4",
+                "requestStatus" => "1",
                 "amounts" => null
             ]);
 
@@ -472,7 +472,7 @@ class RequestController extends Controller
             }
 
             $request= Rrequest::where("requestId", $requestId)->update([
-                "requestStatus" => "1",
+                "requestStatus" => "2",
                 "shipperName" => $request->input("shipperName"),
                 "trackingNumber" => $request->input("trackingNumber"),
             ], 200);
@@ -510,7 +510,7 @@ class RequestController extends Controller
             }
 
             $request= Rrequest::where("requestId", $requestId)->update([
-                "requestStatus" => "2",
+                "requestStatus" => "4",
                 "supplierId" => null,
                
             ]);

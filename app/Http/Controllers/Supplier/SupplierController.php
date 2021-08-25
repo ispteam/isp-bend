@@ -134,7 +134,7 @@ class SupplierController extends Controller
                 "companyInArabic" => $request->input("companyInArabic"),
                 "companyCertificate" => $certificateName,
                 "pref" => $request->input("pref"),
-                "carsPref" => $request->input("carsPref")
+                "carsPref" => json_encode($request->input("carsPref"))
             ]);
 
 

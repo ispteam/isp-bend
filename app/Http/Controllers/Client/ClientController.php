@@ -108,7 +108,7 @@ class ClientController extends Controller
                 "name" => $request->input("name"),
                 "password" => Hash::make($request->input("password")),
                 "email"=> $request->input("email"),
-                "phone" => "+".$request->input("phone")
+                "phone" => $request->input("phone")
             ]);
 
             //If registering a new account failed

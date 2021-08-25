@@ -20,7 +20,7 @@ class CreateSuppliersTable extends Migration
             $table->string("companyCertificate")->nullable();
             $table->string("verified")->default("0"); // It is a way to ensure the supplier's account whether verified or not example 0: Not verified, 1:Verified, 2:Suspended
             $table->string("pref"); //For suppliers notifications if needs only cars/vehicles/all
-            $table->string("carsPref"); //For suppliers notifications if needs only specif cars
+            $table->longText("carsPref"); //For suppliers notifications if needs only specif cars
             $table->foreign("supplierId")->references("uid")->on("users_info")->onDelete("CASCADE")->onUpdate("CASCADE");
             $table->timestamps();
         });
