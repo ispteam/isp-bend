@@ -707,35 +707,35 @@ class RequestController extends Controller
 
     public function pendingRequests (Request $request , $offset=0, $pref) {
         try{
-            $requests = [];
-            $length = null;
-            if($pref == "cars"){
-                $supplierCarsPref = json_decode($request->input("carsPref"));
-                if(!in_array("all cars", $supplierCarsPref)){
-                    $req= Rrequest::with(["clients", "brands", "suppliers"])->orderBy("created_at", "DESC")->where("requestStatus", "0")->where("finalAmount", "=" , "0")->where("field", "cars")->limit(6)->offset($offset)->get();
-                    foreach($req as $request){
-                        if($request->brands->brandName == $supplierCarsPref){
-                            $requests[] = $request;
-                        }
-                    }
-                    $length = count($requests);
-                }else{
-                    $requests= Rrequest::with(["clients", "brands", "suppliers"])->orderBy("created_at", "DESC")->where("requestStatus", "0")->where("finalAmount", "=" , "0")->where("field", "cars")->limit(6)->offset($offset)->get();
-                    $length = Rrequest::where("requestStatus", "0" )->where("field", "cars")->where("finalAmount", "=" , "0")->count();
-                }
-            }
-            else if($pref == "vehicles"){
-                $requests= Rrequest::with(["clients", "brands", "suppliers"])->orderBy("created_at", "DESC")->where("requestStatus", "0")->where("finalAmount", "=" , "0")->where("field", "big vehicles")->limit(6)->offset($offset)->get();
-                $length = Rrequest::where("requestStatus", "0" )->where("field", "big vehicles")->where("finalAmount", "=" , "0")->count();
-            }else if($pref == "all"){
-                $requests= Rrequest::with(["clients", "brands", "suppliers"])->orderBy("created_at", "DESC")->where("requestStatus", "0")->where("finalAmount", "=" , "0")->limit(6)->offset($offset)->get();
-                $length = Rrequest::where("requestStatus", "0" )->where("finalAmount", "=" , "0")->count();
-            }
+            // $requests = [];
+            // $length = null;
+            // if($pref == "cars"){
+            //     $supplierCarsPref = json_decode($request->input("carsPref"));
+            //     if(!in_array("all cars", $supplierCarsPref)){
+            //         $req= Rrequest::with(["clients", "brands", "suppliers"])->orderBy("created_at", "DESC")->where("requestStatus", "0")->where("finalAmount", "=" , "0")->where("field", "cars")->limit(6)->offset($offset)->get();
+            //         foreach($req as $request){
+            //             if($request->brands->brandName == $supplierCarsPref){
+            //                 $requests[] = $request;
+            //             }
+            //         }
+            //         $length = count($requests);
+            //     }else{
+            //         $requests= Rrequest::with(["clients", "brands", "suppliers"])->orderBy("created_at", "DESC")->where("requestStatus", "0")->where("finalAmount", "=" , "0")->where("field", "cars")->limit(6)->offset($offset)->get();
+            //         $length = Rrequest::where("requestStatus", "0" )->where("field", "cars")->where("finalAmount", "=" , "0")->count();
+            //     }
+            // }
+            // else if($pref == "vehicles"){
+            //     $requests= Rrequest::with(["clients", "brands", "suppliers"])->orderBy("created_at", "DESC")->where("requestStatus", "0")->where("finalAmount", "=" , "0")->where("field", "big vehicles")->limit(6)->offset($offset)->get();
+            //     $length = Rrequest::where("requestStatus", "0" )->where("field", "big vehicles")->where("finalAmount", "=" , "0")->count();
+            // }else if($pref == "all"){
+            //     $requests= Rrequest::with(["clients", "brands", "suppliers"])->orderBy("created_at", "DESC")->where("requestStatus", "0")->where("finalAmount", "=" , "0")->limit(6)->offset($offset)->get();
+            //     $length = Rrequest::where("requestStatus", "0" )->where("finalAmount", "=" , "0")->count();
+            // }
             
 
             return response()->json([
-                "requests" =>$requests,
-                "length" => $length,
+                "requests" =>$request->input("carsPref"),
+                // "length" => $length,
                 "statusCode" => 200
             ], 200);
         }catch(Error $err){
