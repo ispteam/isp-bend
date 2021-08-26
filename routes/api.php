@@ -84,6 +84,9 @@ Route::prefix('supplier')->group(function () {
     Route::get("/all-requests", [SupplierController::class, 'allRequests']);
     Route::get("/suppliers-emails/{pref}/{carsPref?}", [SupplierController::class, 'suppliersEmails']);
     Route::get("/suppliers-all-cars-emails", [SupplierController::class, 'allCarsPref']);
+    Route::patch("/request-update", [SupplierController::class, 'requestUpdate']);
+    Route::patch("/accept-update", [SupplierController::class, 'acceptRequestUpdate']);
+    Route::patch("/reject-update", [SupplierController::class, 'rejectRequestUpdate']);
 });
 
  /**
