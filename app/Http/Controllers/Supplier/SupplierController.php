@@ -287,7 +287,8 @@ class SupplierController extends Controller
                 "companyInEnglish" => $request->input("companyInEnglish"),
                 "companyInArabic" => $request->input("companyInArabic"),
                 "pref" => $request->input("pref"),
-                "carsPref" => $request->input("carsPref")
+                "carsPref" => $request->input("carsPref"),
+                "requestUpdate" => "0"
             ]);
 
             
@@ -474,4 +475,65 @@ class SupplierController extends Controller
             
         }
     }
+
+    public function requestUpdate(Request $request){
+        try{
+            $supplierId = $request->input("uid");
+            Supplier::where("supplierId", $supplierId)->update([
+                "requestUpdate" => "1"
+            ]);
+            return response()->json([
+                "message" => "Request has been added",
+                "messageInArabic" => "تم اضافو طلب تعديل",
+                "statusCode" => 200
+            ], 200);
+       }catch(Error $err){
+            return response()->json([
+                "message" => $err->message,
+                "messageInArabic" => $err->messageInArabic,
+                "statusCode" => $err->statusCode
+            ], $err->statusCode);
+       }
+    }
+
+    public function acceptRequestUpdate(Request $request){
+        try{
+            $supplierId = $request->input("uid");
+            Supplier::where("supplierId", $supplierId)->update([
+                "requestUpdate" => "2"
+            ]);
+            return response()->json([
+                "message" => "Update Information is available",
+                "messageInArabic" => "تمت اتاحة تعديل البيانات",
+                "statusCode" => 200
+            ], 200);
+       }catch(Error $err){
+            return response()->json([
+                "message" => $err->message,
+                "messageInArabic" => $err->messageInArabic,
+                "statusCode" => $err->statusCode
+            ], $err->statusCode);
+       }
+    }
+    
+    public function rejectRequestUpdate(Request $request){
+        try{
+            $supplierId = $request->input("uid");
+            Supplier::where("supplierId", $supplierId)->update([
+                "requestUpdate" => "0"
+            ]);
+            return response()->json([
+                "message" => "Update Information is rejected",
+                "messageInArabic" => "تم رفض تعديل البيانات",
+                "statusCode" => 200
+            ], 200);
+       }catch(Error $err){
+            return response()->json([
+                "message" => $err->message,
+                "messageInArabic" => $err->messageInArabic,
+                "statusCode" => $err->statusCode
+            ], $err->statusCode);
+       }
+    }
+    
 }
