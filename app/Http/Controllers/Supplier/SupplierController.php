@@ -480,7 +480,7 @@ class SupplierController extends Controller
         try{
             $supplierId = $request->input("uid");
             Supplier::where("supplierId", $supplierId)->update([
-                "requestUpdate" => "1"
+                "updateRequest" => "1"
             ]);
             return response()->json([
                 "message" => "Request has been added",
@@ -500,7 +500,7 @@ class SupplierController extends Controller
         try{
             $supplierId = $request->input("uid");
             Supplier::where("supplierId", $supplierId)->update([
-                "requestUpdate" => "2"
+                "updateRequest" => "2"
             ]);
             return response()->json([
                 "message" => "Update Information is available",
@@ -520,7 +520,7 @@ class SupplierController extends Controller
         try{
             $supplierId = $request->input("uid");
             Supplier::where("supplierId", $supplierId)->update([
-                "requestUpdate" => "0"
+                "updateRequest" => "0"
             ]);
             return response()->json([
                 "message" => "Update Information is rejected",
