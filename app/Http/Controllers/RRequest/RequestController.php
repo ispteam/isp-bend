@@ -553,7 +553,7 @@ class RequestController extends Controller
     {
         try{
             $requestId = intval($request->input("requestId")) ? $request->input("requestId") : 0;
-            $supplier = Supplier::where("supplierId", $request->input("supplierId"))->first();
+            $supplier = json_decode(Supplier::where("supplierId", $request->input("uid"))->first());
             if( $requestId == 0){
                 $error = new Error(null);
                 $error->errorMessage ="Invalid id for request";
@@ -572,7 +572,7 @@ class RequestController extends Controller
                 "status" => "refund"
             ]);
 
-            Supplier::where("supplierId",  $request->input("supplierId"))->update([
+            Supplier::where("supplierId",  $request->input("uid"))->update([
                 "cancelTimes" => $supplier->cancelTimes + 1
             ]);
 
