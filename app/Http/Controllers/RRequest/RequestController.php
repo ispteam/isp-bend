@@ -15,7 +15,7 @@ class RequestController extends Controller
 
     public function __construct()
     {
-        $this->middleware("isAuthorized")->except(["index","show", "pendingRequests", "assignedRequests", "singleRequest"]);
+        $this->middleware("isAuthorized")->except(["index","show", "pendingRequests", "assignedRequests", "singleRequest", "cancelRequestSupplier"]);
     }
 
     public function index(){
@@ -571,10 +571,10 @@ class RequestController extends Controller
                 "status" => "refund"
             ]);
 
-            Supplier::where("supplierId",  $request->input("uid"))->update([
+            Supplier::where("supplierId", $supplier->supplierId)->update([
                 "cancelTimes" => $supplier->cancelTimes + 1
             ]);
-
+            
 
             return response()->json([
                 "message" => "shipment has been canceled",
