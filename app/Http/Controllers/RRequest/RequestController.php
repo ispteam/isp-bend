@@ -562,11 +562,10 @@ class RequestController extends Controller
                 throw $error;
             }
 
-            // $request= Rrequest::where("requestId", $requestId)->update([
-            //     "requestStatus" => "0",
-            //     "supplierId" => null,
-               
-            // ]);
+            $request= Rrequest::where("requestId", $requestId)->update([
+                "requestStatus" => "0",
+                "supplierId" => null,
+            ]);
 
             Payment::where("requestId", $requestId)->update([
                 "status" => "refund"
