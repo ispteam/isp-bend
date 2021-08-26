@@ -288,7 +288,7 @@ class SupplierController extends Controller
                 "companyInArabic" => $request->input("companyInArabic"),
                 "pref" => $request->input("pref"),
                 "carsPref" => $request->input("carsPref"),
-                "requestUpdate" => "0"
+                "updateRequest" => "0"
             ]);
 
             
