@@ -577,14 +577,6 @@ class RequestController extends Controller
             ]);
 
 
-            if($request == 0){
-                $error = new Error(null);
-                $error->errorMessage = "There is something wrong happened";
-                $error->messageInArabic = "حصل خطأ";
-                $error->statusCode = 500;
-                throw $error;
-            }
-
             return response()->json([
                 "message" => "shipment has been canceled",
                 "messageInArabic" => " ألغيت الشحنة",
