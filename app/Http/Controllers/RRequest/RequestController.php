@@ -568,9 +568,9 @@ class RequestController extends Controller
                
             // ]);
 
-            // Payment::where("requestId", $requestId)->update([
-            //     "status" => "refund"
-            // ]);
+            Payment::where("requestId", $requestId)->update([
+                "status" => "refund"
+            ]);
 
             Supplier::where("supplierId",  $request->input("uid"))->update([
                 "cancelTimes" => $supplier->cancelTimes + 1
