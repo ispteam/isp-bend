@@ -739,12 +739,12 @@ class ModeratorController extends Controller
     public function allRecords($status)
     {
         $moderator = null;
-        $clients = Client::with("account")->get();
-        $suppliers = Supplier::with("account")->get();
-        $requests = Rrequests::with(["clients", "brands", "suppliers"])->get();
-        $brands = Brand::all()->toArray();
+        $clients = count(Client::with("account")->get());
+        $suppliers = count(Supplier::with("account")->get());
+        $requests = count(Rrequests::with(["clients", "brands", "suppliers"])->get());
+        $brands = count(Brand::all()->toArray());
         if($status == "admin"){
-            $moderator = Moderator::with("account")->get();
+            $moderator = count(Moderator::with("account")->get());
         }
         return response()->json([
             "clients" => $clients,
