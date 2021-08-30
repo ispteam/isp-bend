@@ -220,18 +220,6 @@ class AdminController extends Controller
 
 
            /**
-            * Here we check if there a admin inserted or not.
-            * If not inserted successfully. The system returns an error message.
-            */
-           if($admin == 0 ){
-               $error = new Error(null);
-               $error->errorMessage = "There is something wrong happened";
-               $error->messageInArabic = "حصل خطأ";
-               $error->statusCode = 500;
-               throw $error;
-           }
-
-           /**
             * System will send a response to the admin to notify him the registration was succeed
             */
            return response()->json([
