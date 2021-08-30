@@ -65,7 +65,7 @@ Route::prefix('moderator')->group(function () {
     Route::get("/last-five-records", [ModeratorController::class, 'lastFiveRecords']);
 
     //To get all records in the db together
-    Route::get('/all-records/{status?}', [ModeratorController::class, 'allRecords']);
+    Route::get('/all-records', [ModeratorController::class, 'allRecords']);
     
 });
 

@@ -736,7 +736,7 @@ class ModeratorController extends Controller
         ], 200);
     }
     
-    public function allRecords($status)
+    public function allRecords()
     {
         $clients = Client::get(["created_at"]);
         $suppliers = Supplier::get(["created_at"]);
