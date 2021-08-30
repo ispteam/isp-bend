@@ -121,7 +121,7 @@ class ModeratorController extends Controller
 
             $moderator = Moderator::create([
                 "moderatorId" => $moderatorAccount->id,
-                "enterId" => uniqid($request->input("name")[0].$request->input("name")[1]."-", true),
+                "enterId" => substr($request->input("name"), 0, 2)."-". substr($request->input("phone"), 3, 6)
             ]);
 
 
