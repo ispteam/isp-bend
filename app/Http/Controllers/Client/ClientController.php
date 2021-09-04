@@ -63,8 +63,7 @@ class ClientController extends Controller
              */
         
             $rules = [
-                "nameInArabic" => "required|string|min:2|max:30|regex:/^[؀-ۿ\s]+$/",
-                "name" => "required|string|min:2|max:30|regex:/^[A-Za-z\s]+$/",
+                "name" => "required|string|min:2|max:30|regex:/^[A-Za-z؀-ۿ\s]+$/",
                 "password" => "required|string|min:7|max:20|regex:/^[A-Za-z\s].+$/",
                 "email" =>"required|email|unique:users_info,email",
                 // "address" => "required",
@@ -104,7 +103,6 @@ class ClientController extends Controller
              * We convert the address field into json because the column address type is in json format
              */
             $clientUser = User::create([
-                "nameInArabic" => $request->input("nameInArabic"),
                 "name" => $request->input("name"),
                 "password" => Hash::make($request->input("password")),
                 "email"=> $request->input("email"),
