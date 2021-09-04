@@ -179,6 +179,8 @@ Route::prefix('request')->group(function () {
     Route::patch('/delivery-request', [RequestController::class, 'onDelivery']);
 
     Route::patch("/reject-offer", [RequestController::class, 'rejectOffer']);
+
+    Route::post("/add-signle-request", [RequestController::class, 'addSingleRequest']);
 });
 
 Route::prefix('/payment')->group(function(){

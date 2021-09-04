@@ -3,19 +3,22 @@
 namespace App\Http\Controllers\RRequest;
 
 use App\Http\Validation\ValidationError;
+use App\Models\Client\Client;
 use App\Models\Payment\Payment;
 use App\Models\RRequest\Request as Rrequest;
 use App\Models\Supplier\Supplier;
+use App\Models\User\User;
 use Error;
 use Illuminate\Routing\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 class RequestController extends Controller
 {
 
     public function __construct()
     {
-        $this->middleware("isAuthorized")->except(["index","show", "pendingRequests", "assignedRequests", "singleRequest", "cancelRequestSupplier"]);
+        $this->middleware("isAuthorized")->except(["index","show", "pendingRequests", "assignedRequests", "singleRequest", "cancelRequestSupplier", "addSingleRequest"]);
     }
 
     public function index(){
@@ -587,6 +590,92 @@ class RequestController extends Controller
             return response()->json([
                 "message" => $err->errorMessage,
                 "messageInArabic" => $err->messageInArabic,
+                "statusCode" => $err->statusCode
+            ], $err->statusCode);
+        }
+    }
+
+    public function addSingleRequest (Request $request){
+        try{
+            $user = null;
+            $transformedInformation = $request->input("information");
+            $clientId = $transformedInformation["clientId"];
+            if($request->input("registration") != null){
+                $registrationInfo = $request->input("registration");
+                $rules = [
+                    // "nameInArabic" => "required|string|min:2|max:30|regex:/^[؀-ۿ\s]+$/",
+                    "name" => "required|string|min:2|max:30|regex:/^[A-Za-z؀-ۿ\s]+$/",
+                    "password" => "required|string|min:7|max:20|regex:/^[A-Za-z\s].+$/",
+                    "email" =>"required|email|unique:users_info,email",
+                    // "address" => "required",
+                    "phone"  => "required|string|min:10|max:13|unique:users_info,phone|regex:/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/",
+                ];
+                $validator = ValidationError::validationRequest($registrationInfo, $rules);
+                if($validator->fails()){
+                    $error = new Error(null);
+                    $error->validationMessage = $validator->errors();
+                    $error->errorMessage = "";
+                    $error->messageInArabic = "";
+                    $error->statusCode = 422;
+                    throw $error;
+                }
+                $user = User::create([
+                    "email" => $registrationInfo["email"],
+                    "password" => Hash::make($registrationInfo["password"]),
+                    "name" => $registrationInfo["name"],
+                    "phone" => "+".$registrationInfo["phone"]
+                ]);
+                Client::create([
+                    "clientId" => $user->id,
+                ]);
+                $clientId = $user->id;
+            };
+
+            $rules = [
+                "description" => "required|string|min:3|max:200|regex:/^[A-Za-z0-9؀-ۿ\s]+$/",
+                "quantity" =>"required|numeric|regex:/^[0-9]+/",
+            ];
+
+            $validator = ValidationError::validationUserInput($request, $rules);
+
+            if($validator->fails()){
+                $error = new Error(null);
+                $error->validationMessage = $validator->errors();
+                $error->errorMessage = "";
+                $error->messageInArabic = "";
+                $error->statusCode = 422;
+                throw $error;
+            }
+
+            $sanitizedModel = ValidationError::sanitizeArray($request->input("model"));
+            $sanitizedAddress = ValidationError::sanitizeArray($transformedInformation["address"]);
+
+            Rrequest::create([
+                "requestNum" => rand(0, intval(10000000000)) + $clientId,
+                "description" => $request->input("description"),
+                "address" => json_encode($sanitizedAddress),
+                // "addressArabic" => json_encode($sanitizedAddressArabic[$i]),
+                "model" => json_encode($sanitizedModel),
+                "field" => $transformedInformation["field"],
+                "clientId" => $clientId,
+                "brandId" => $request->input("brandId"),
+                "quantity" => $request->input("quantity")
+            ]);
+
+            return response()->json([
+                // "xx"=> $request->input("registration"),
+                "message" => "Request has been added successfully",
+                "messageInArabic" => "تم اضافة الطلب بنجاح",
+                "statusCode" => 201
+            ], 201);
+
+
+
+        }catch(Error $err){
+            return response()->json([
+                "message" => $err->errorMessage,
+                "messageInArabic" => $err->messageInArabic,
+                "validationMessage" => $err->validationMessage,
                 "statusCode" => $err->statusCode
             ], $err->statusCode);
         }
