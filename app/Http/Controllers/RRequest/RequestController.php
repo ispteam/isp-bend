@@ -623,7 +623,7 @@ class RequestController extends Controller
                     "email" => $registrationInfo["email"],
                     "password" => Hash::make($registrationInfo["password"]),
                     "name" => $registrationInfo["name"],
-                    "phone" => "+".$registrationInfo["phone"]
+                    "phone" => $registrationInfo["phone"]
                 ]);
                 Client::create([
                     "clientId" => $user->id,
