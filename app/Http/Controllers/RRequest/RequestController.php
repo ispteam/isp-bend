@@ -137,7 +137,7 @@ class RequestController extends Controller
                 $sanitizedModel[$i] = ValidationError::sanitizeArray($transformedRequest["data"][$i]["model"]);
                 
                 $requesInfo[$i] = Rrequest::create([
-                    "requestNum" => $transformedRequest["data"][$i]["requestNum"],
+                    "requestNum" => rand(0, intval(10000000000)) + $clientId,
                     "description" => $transformedRequest["data"][$i]["description"],
                     "address" => json_encode($sanitizedAddress[$i]),
                     // "addressArabic" => json_encode($sanitizedAddressArabic[$i]),
