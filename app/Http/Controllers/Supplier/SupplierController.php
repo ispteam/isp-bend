@@ -414,19 +414,35 @@ class SupplierController extends Controller
             $emails = [];
             $suppliers= [];
             if($pref == "cars"){
-                json_decode($suppliers = Supplier::with("account")->where("carsPref", $carsPref)->get(["supplierId", "pref", "carsPref"]));
+                json_decode($suppliers = Supplier::with("account")->where("pref", "cars")->get(["supplierId", "pref", "carsPref"]));
             }else if($pref == "vehicles"){
                 json_decode($suppliers = Supplier::with("account")->where("pref", "vehicles")->orWhere("pref", "all")->get(["supplierId", "pref", "carsPref"]));
             }else if($pref == "all"){
                 json_decode($suppliers = Supplier::with("account")->where("pref", "all")->get(["supplierId", "pref", "carsPref"]));
             }
-
-            for($i=0; $i<count($suppliers); $i++){
-                if($suppliers[$i]["account"]["email"] == null){
-                    continue;
+            
+            if($pref == "cars"){
+                for($i=0; $i<count($suppliers); $i++){
+                    if($suppliers[$i]["account"]["email"] == null){
+                        continue;
+                    }
+                    $carsPrefs = explode(",", $suppliers[$i]["carsPref"]);
+                    for($x=0; $x<count($carsPrefs); $x++){
+                        if($carsPrefs[$x] != $carsPref){
+                            continue;
+                        }
+                        array_push($emails, ["email" => $suppliers[$i]["account"]["email"], "pref" => $suppliers[$i]["pref"], "carsPref" => $suppliers[$i]["carsPref"]]);
+                    }
                 }
-                array_push($emails, ["email" => $suppliers[$i]["account"]["email"], "pref" => $suppliers[$i]["pref"], "carsPref" => $suppliers[$i]["carsPref"]]);
+            }else{
+                for($i=0; $i<count($suppliers); $i++){
+                    if($suppliers[$i]["account"]["email"] == null){
+                        continue;
+                    }
+                    array_push($emails, ["email" => $suppliers[$i]["account"]["email"], "pref" => $suppliers[$i]["pref"], "carsPref" => $suppliers[$i]["carsPref"]]);
+                }
             }
+
 
             return response()->json([
                 "emails" => $emails,
