@@ -431,7 +431,8 @@ class SupplierController extends Controller
                         if($carsPrefs[$x] != $carsPref){
                             continue;
                         }
-                        array_push($emails, ["email" => $suppliers[$i]["account"]["email"], "pref" => $suppliers[$i]["pref"], "carsPref" => $suppliers[$i]["carsPref"]]);
+                        $emails[$x] = $suppliers[$i]["account"]["email"];
+                        // array_push($emails, "email" => $suppliers[$i]["account"]["email"], "pref" => $suppliers[$i]["pref"], "carsPref" => $suppliers[$i]["carsPref"]);
                     }
                 }
             }else{
