@@ -18,7 +18,7 @@ class RequestController extends Controller
 
     public function __construct()
     {
-        $this->middleware("isAuthorized")->except(["index","show", "pendingRequests", "assignedRequests", "singleRequest", "cancelRequestSupplier", "addSingleRequest"]);
+        $this->middleware("isAuthorized")->except(["index","show", "pendingRequests", "assignedRequests", "singleRequest", "cancelRequestSupplier", "store" ,"addSingleRequest"]);
     }
 
     public function index(){
@@ -78,20 +78,46 @@ class RequestController extends Controller
         try{
 
             $transformedRequest = $request->json()->all();
-            $clientId = intval($transformedRequest["information"]["clientId"]) ? $transformedRequest["information"]["clientId"] : 0;
+            $clientId = intval($transformedRequest["information"]["clientId"]) ? $transformedRequest["information"]["clientId"] : null;
             $sanitizedAddress = []; 
             $sanitizedModel= [];
             $sanitizedAddressArabic= [];
             $requestsIds= [];
-            for ($i=0; $i < count($transformedRequest["data"]) ; $i++) { 
-                if($clientId == 0){
+            $user = null;
+            $transformedInformation = $request->input("information");
+            if($request->input("registration") != null){
+                $registrationInfo = $request->input("registration");
+                $rules = [
+                    // "nameInArabic" => "required|string|min:2|max:30|regex:/^[؀-ۿ\s]+$/",
+                    "name" => "required|string|min:2|max:30|regex:/^[A-Za-z؀-ۿ\s]+$/",
+                    "password" => "required|string|min:7|max:20|regex:/^[A-Za-z\s].+$/",
+                    "email" =>"required|email|unique:users_info,email",
+                    // "address" => "required",
+                    "phone"  => "required|string|min:10|max:13|unique:users_info,phone|regex:/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/",
+                ];
+                $validator = ValidationError::validationRequest($registrationInfo, $rules);
+                if($validator->fails()){
                     $error = new Error(null);
-                    $error->errorMessage ="Invalid id for client or brand";
-                    $error->messageInArabic = "معرّف خاطئ للعلامة التجارية او العميل";
-                    $error->validationMessage = null;
+                    $error->validationMessage = $validator->errors();
+                    $error->errorMessage = "";
+                    $error->messageInArabic = "";
                     $error->statusCode = 422;
                     throw $error;
                 }
+                $user = User::create([
+                    "email" => $registrationInfo["email"],
+                    "password" => Hash::make($registrationInfo["password"]),
+                    "name" => $registrationInfo["name"],
+                    "phone" => $registrationInfo["phone"]
+                ]);
+                Client::create([
+                    "clientId" => $user->id,
+                ]);
+                $clientId = $user->id;
+            };
+
+            for ($i=0; $i < count($transformedRequest["data"]) ; $i++) { 
+                
                 $rules = [
                     "description" => "required|string|min:3|max:200|regex:/^[A-Za-z0-9؀-ۿ\s]+$/",
                     "quantity" =>"required|numeric|regex:/^[0-9]+/",
