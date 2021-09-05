@@ -11,6 +11,6 @@ class User extends Model
     protected $table = "users_info";
     protected $primarykey = "uid";
     protected $fillable = ["name", "password", "email", "phone", "userType", "token", "rememberToken"];  
-    protected $hidden = ["password"];
+    protected $hidden = ["password", "token"];
     public $timestamps = false;
 }
