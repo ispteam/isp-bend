@@ -418,7 +418,7 @@ class SupplierController extends Controller
             $emails = [];
             $suppliers= [];
             if($pref == "cars"){
-                json_decode($suppliers = Supplier::with("account")->where("pref", "all")->orWhere("carsPref", $carsPref)->get(["supplierId", "pref", "carsPref"]));
+                json_decode($suppliers = Supplier::with("account")->where("carsPref", $carsPref)->get(["supplierId", "pref", "carsPref"]));
             }else if($pref == "vehicles"){
                 json_decode($suppliers = Supplier::with("account")->where("pref", "vehicles")->orWhere("pref", "all")->get(["supplierId", "pref", "carsPref"]));
             }else if($pref == "all"){
