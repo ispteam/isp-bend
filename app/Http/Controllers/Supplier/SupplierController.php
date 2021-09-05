@@ -68,8 +68,6 @@ class SupplierController extends Controller
 
         
             $rules = [
-                "nameInArabic" => "required|string|min:2|max:30|regex:/^[؀-ۿ\s]+$/",
-                "name" => "required|string|min:2|max:30|regex:/^[A-Za-z\s]+$/",
                 "password" => "required|string|min:7|max:20|regex:/^[A-Za-z\s].+$/",
                 "email" =>"required|email|unique:users_info,email",
                 "phone"  => "required|string|min:10|max:13|unique:users_info,phone|regex:/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/",
@@ -100,8 +98,6 @@ class SupplierController extends Controller
             
             
             $supplierAccount = User::create([
-                "nameInArabic" => $request->input("nameInArabic"),
-                "name" => $request->input("name"),
                 "password" => Hash::make($request->input("password")),
                 "email"=> $request->input("email"),
                 "phone" => "+".$request->input("phone"),
