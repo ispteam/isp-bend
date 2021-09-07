@@ -498,7 +498,7 @@ class SupplierController extends Controller
             ]);
             return response()->json([
                 "message" => "Request has been added",
-                "messageInArabic" => "تم اضافو طلب تعديل",
+                "messageInArabic" => "تم اضافة طلب تعديل",
                 "statusCode" => 200
             ], 200);
        }catch(Error $err){
