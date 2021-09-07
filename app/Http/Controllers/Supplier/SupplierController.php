@@ -236,8 +236,6 @@ class SupplierController extends Controller
             }
         
             $rules = [
-                "nameInArabic" => "required|string|min:2|max:30|regex:/^[؀-ۿ\s]+$/",
-                "name" => "required|string|min:2|max:30|regex:/^[A-Za-z\s]+$/",
                 "email" =>"required|email",
                 "phone"  => "required|string|min:10|max:13|regex:/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/",
                 "companyInEnglish" => "required|string|min:2|max:30|regex:/^[A-Za-z\s]+$/",
@@ -271,8 +269,6 @@ class SupplierController extends Controller
              * We convert the address field into json because the column address type is in json format
              */
             User::where("uid", $supplierId)->update([
-                "nameInArabic" => $request->input("nameInArabic"),
-                "name" => $request->input("name"),
                 "email"=> $request->input("email"),
                 "phone" => $request->input("phone")
             ]);
