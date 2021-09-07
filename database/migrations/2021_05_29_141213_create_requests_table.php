@@ -18,7 +18,7 @@ class CreateRequestsTable extends Migration
             $table->text("description");
             $table->string("requestStatus")->default("0");  // It is a way to ensure the reqest status whether processed or not example 0: Pending, 1:in progress, 2:completed, 3: canceled.
             $table->string("requestNum")->unique();
-            $table->mediumText("address");
+            $table->json("address");
             $table->mediumText("model");
             $table->string("field");
             $table->unsignedBigInteger("brandId");
