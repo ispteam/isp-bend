@@ -679,7 +679,7 @@ class RequestController extends Controller
             Rrequest::create([
                 "requestNum" => rand(0, intval(10000000000)) + $clientId,
                 "description" => $request->input("description"),
-                "address" => json_encode($sanitizedAddress),
+                "address" => $sanitizedAddress,
                 // "addressArabic" => json_encode($sanitizedAddressArabic[$i]),
                 "model" => json_encode($sanitizedModel),
                 "field" => $transformedInformation["field"],
