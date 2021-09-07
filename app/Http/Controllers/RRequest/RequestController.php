@@ -486,7 +486,7 @@ class RequestController extends Controller
 
             $rules = [
                 "shipperName" => "required|string|min:3|max:15|regex:/^[A-Za-z0-9؀-ۿ\s]+$/",
-                "trackingNumber" =>"required|numeric|min:10|regex:/^[0-9]+/",
+                "trackingNumber" =>"required|string|min:10|regex:/^[A-Za-z0-9]+/",
             ];
 
             $validator= ValidationError::validationUserInput($request, $rules);

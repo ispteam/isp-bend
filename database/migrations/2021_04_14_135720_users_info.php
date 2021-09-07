@@ -10,11 +10,10 @@ class UsersInfo extends Migration
     {
         Schema::create('users_info', function (Blueprint $table) {
             $table->bigIncrements("uid");
-            $table->string("name");
-            $table->string("nameInArabic");
+            $table->string("name")->nullable();
             $table->string("password");
             $table->string("email")->unique();
-            $table->string("phone");
+            $table->string("phone")->unique();
             $table->longText("token")->nullable();
             $table->string("rememberToken")->nullable();
             $table->string("userType")->default("3"); // 0-ADMIN, 1-MODERATORS, 2-SUPPLIERS, 3-CLIENT;

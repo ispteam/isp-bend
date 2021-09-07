@@ -100,7 +100,7 @@ class SupplierController extends Controller
             $supplierAccount = User::create([
                 "password" => Hash::make($request->input("password")),
                 "email"=> $request->input("email"),
-                "phone" => "+".$request->input("phone"),
+                "phone" => $request->input("phone"),
                 "userType" => "2",
             ]);
             
