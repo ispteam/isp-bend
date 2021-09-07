@@ -37,8 +37,7 @@ class AdminController extends Controller
              * For example, phone => ^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/ : "+966550099881" this will return true because  it accepts only numbers and the country entery number.
              */
             $rules = [
-                "nameInArabic" => "required|string|min:2|max:30|regex:/^[؀-ۿ\s]+$/",
-                "name" => "required|string|min:2|max:30|regex:/^[A-Za-z\s]+$/",
+                "name" => "required|string|min:2|max:30|regex:/^[A-Za-z؀-ۿ\s]+$/",
                 "password" => "required|string|min:7|max:20|regex:/^[A-Za-z\s].+$/",
                 "email" =>"required|email|unique:users_info,email",
                 "userType" => "required",
@@ -65,7 +64,6 @@ class AdminController extends Controller
              */
 
             $adminUser = User::create([
-                "nameInArabic" => $request->input("nameInArabic"),
                 "name" => $request->input("name"),
                 "password" => Hash::make($request->input("password")),
                 "email"=> $request->input("email"),
@@ -190,8 +188,7 @@ class AdminController extends Controller
                 throw $error;
             }
            $rules = [
-               "nameInArabic" => "required|string|min:2|max:30|regex:/^[؀-ۿ\s]+$/",
-               "name" => "required|string|min:2|max:30|regex:/^[A-Za-z\s]+$/",
+                "name" => "required|string|min:2|max:30|regex:/^[A-Za-z؀-ۿ\s]+$/",
                "email" =>"required|email",
                "phone"  => "required|string|min:10|max:13|regex:/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/",
            ];
@@ -212,7 +209,6 @@ class AdminController extends Controller
            }
 
            $admin = User::where("uid", $adminId)->update([
-               "nameInArabic" => $request->input("nameInArabic"),
                "name" => $request->input("name"),
                "email"=> $request->input("email"),
                "phone" => $request->input("phone"),
