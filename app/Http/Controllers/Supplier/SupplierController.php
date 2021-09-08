@@ -513,7 +513,7 @@ class SupplierController extends Controller
                 "updateRequest" => "2"
             ]);
             return response()->json([
-                "message" => "Update Information is available",
+                "message" => "Update Information is available now",
                 "messageInArabic" => "تمت اتاحة تعديل البيانات",
                 "statusCode" => 200
             ], 200);
