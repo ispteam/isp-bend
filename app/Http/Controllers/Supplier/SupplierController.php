@@ -16,7 +16,7 @@ class SupplierController extends Controller
 
     public function __construct()
     {
-        $this->middleware("isAuthorized")->except(["index", "show", "store", "suppliersEmails", "allCarsPref", "rejectUpdate"]);
+        $this->middleware("isAuthorized")->except(["index", "show", "store", "suppliersEmails", "allCarsPref"]);
     }
 
     /**
