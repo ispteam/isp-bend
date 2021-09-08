@@ -508,7 +508,7 @@ class SupplierController extends Controller
 
     public function acceptRequestUpdate(Request $request){
         try{
-            $supplierId = $request->input("uid");
+            $supplierId = $request->input("supplierId");
             Supplier::where("supplierId", $supplierId)->update([
                 "updateRequest" => "2"
             ]);
@@ -528,7 +528,7 @@ class SupplierController extends Controller
     
     public function rejectRequestUpdate(Request $request){
         try{
-            $supplierId = $request->input("uid");
+            $supplierId = $request->input("supplierId");
             Supplier::where("supplierId", $supplierId)->update([
                 "updateRequest" => "0"
             ]);
