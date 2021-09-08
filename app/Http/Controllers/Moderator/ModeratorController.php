@@ -715,8 +715,8 @@ class ModeratorController extends Controller
     public function lastFiveRecords()
     {
         $clients = Client::with("account")->orderBy("clientId", "DESC")->limit(5)->get(["clientId"]);
-        $approvedSuppliers = Supplier::with("account")->where("verified", 1)->orderBy("supplierId", "DESC")->limit(5)->get(["supplierId"]);
-        $unApprovedSuppliers = Supplier::with("account")->where("verified", 0)->orderBy("supplierId", "DESC")->limit(5)->get(["supplierId"]);
+        $approvedSuppliers = Supplier::with("account")->where("verified", 1)->orderBy("supplierId", "DESC")->limit(5)->get(["supplierId", "companyInEnglish"]);
+        $unApprovedSuppliers = Supplier::with("account")->where("verified", 0)->orderBy("supplierId", "DESC")->limit(5)->get(["supplierId", "companyInEnglish"]);
         $submittedRequests = Rrequests::with("clients")->where("requestStatus", 0)->orderBy("created_at", "DESC")->limit("5")->get(["requestId", "address"]);
         $completedRequests = Rrequests::with("clients")->where("requestStatus", 2)->orderBy("created_at", "DESC")->limit("5")->get(["requestId", "address"]);
         $canceledRequests = Rrequests::with("clients")->where("requestStatus", 3)->orderBy("created_at", "DESC")->limit("5")->get(["requestId", "address"]);
