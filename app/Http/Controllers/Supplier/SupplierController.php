@@ -115,7 +115,7 @@ class SupplierController extends Controller
             }
             
             
-            $certificateName = $supplierAccount->id . "_" . $request->input("name") . "_certificate_" . $request->file("companyCertificate")->extension();
+            $certificateName = $supplierAccount->id . "_" . $request->input("companyInEnglish") . "_certificate_" . $request->file("companyCertificate")->extension();
             
             $request->file("companyCertificate")->move(public_path("certificates"), $certificateName);
             
